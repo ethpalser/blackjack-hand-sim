@@ -5,15 +5,15 @@ import java.util.List;
 
 public class Player {
 
-    private final List<Hand> handList;
+    private List<Hand> handList;
 
     public Player() {
         this.handList = new ArrayList<>();
     }
 
-    public Player(Hand initialHand) {
-        this.handList = new ArrayList<>();
-        this.handList.add(initialHand);
+    public void dealHand(Hand hand) {
+        handList = new ArrayList<>();
+        handList.add(hand);
     }
 
     public boolean splitHand(int index) {
