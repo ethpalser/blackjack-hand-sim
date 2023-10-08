@@ -10,6 +10,7 @@ public class Game {
     private List<Player> players;
     private DeckType deckType;
     private List<Card> cardList;
+    private int cardsDealt;
 
     public Game() {
         this(GameMode.ALL_VISIBLE, 1, DeckType.SEGMENTED, 1);
@@ -26,6 +27,7 @@ public class Game {
 
         this.deckType = deckType;
         this.cardList = this.setupDeck(numDecks);
+        this.cardsDealt = 0;
     }
 
     private List<Card> setupDeck(int numDecks) {
@@ -38,6 +40,17 @@ public class Game {
             }
         }
         return cards;
+    }
+
+    public Card draw() {
+        // Return null, then handle resetting the deck separately if necessary
+        if (cardList.isEmpty()) {
+            return null;
+        }
+        int bounds = this.deckType.equals(DeckType.RANDOM) ? cardList.size() : 52 - Math.floorMod(cardsDealt, 52);
+        int index = (int) (Math.random() * bounds);
+        cardsDealt++;
+        return cardList.remove(index);
     }
 
 }
