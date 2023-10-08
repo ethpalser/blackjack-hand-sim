@@ -8,6 +8,34 @@ public class Hand {
     private final List<Card> cardList;
     private int bestValue;
 
+    /**
+     * Initialize a hand with no cards.
+     */
+    public Hand() {
+        cardList = new ArrayList<>();
+        bestValue = 0;
+    }
+
+    /**
+     * Initialize a hand with one card, which is done when cards are being deal one at a time, or when a new hand is
+     * created by splitting another hand.
+     *
+     * @param card First card dealt by dealer or split from another hand
+     * @see Card
+     */
+    public Hand(Card card) {
+        cardList = new ArrayList<>(8);
+        cardList.add(card);
+        bestValue = this.evaluate();
+    }
+
+    /**
+     * Initialize a hand with two cards, which is often done at the start of the game.
+     *
+     * @param first  First card dealt by dealer
+     * @param second Second card dealt by dealer
+     * @see Card
+     */
     public Hand(Card first, Card second) {
         cardList = new ArrayList<>(8);
         cardList.add(first);
@@ -17,6 +45,10 @@ public class Hand {
 
     public int size() {
         return cardList.size();
+    }
+
+    public Card get(int index) {
+        return cardList.get(index);
     }
 
     public void add(Card card) {
