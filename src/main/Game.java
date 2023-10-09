@@ -9,15 +9,9 @@ import java.io.InputStreamReader;
 
 public class Game {
 
-    private GameMode gameMode; // Not needed?
     private Table table;
 
     public Game(int numPlayers, int numDecks) {
-        this.table = new Table(numPlayers, DeckType.SEGMENTED, numDecks);
-    }
-
-    public Game(int numPlayers, int numDecks, GameMode gameMode) {
-        this.gameMode = gameMode;
         this.table = new Table(numPlayers, DeckType.SEGMENTED, numDecks);
     }
 
