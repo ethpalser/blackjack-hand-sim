@@ -11,6 +11,12 @@ public class Player {
         this.handList = new ArrayList<>();
     }
 
+    public Hand getHand(int index) {
+        if (index < 0 || handList == null || index >= handList.size())
+            return null;
+        return handList.get(index);
+    }
+
     public void dealHand(Hand hand) {
         handList = new ArrayList<>();
         handList.add(hand);

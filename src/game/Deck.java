@@ -1,6 +1,7 @@
 package game;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Deck {
@@ -14,6 +15,14 @@ public class Deck {
         this(DeckType.SEGMENTED, 1);
     }
 
+    public Deck(DeckType deckType, Card... cards) {
+        this.deckType = deckType;
+        this.numDecks = (int) Math.ceil(cards.length / 52.0);
+        this.cardList = new ArrayList<>();
+        this.cardList.addAll(Arrays.asList(cards));
+        this.cardsDealt = 52 * this.numDecks - cardList.size();
+    }
+
     public Deck(DeckType deckType, int numDecks) {
         if (numDecks < 1) {
             numDecks = 1;
@@ -23,7 +32,7 @@ public class Deck {
         }
         this.deckType = deckType;
         this.numDecks = numDecks;
-        cardList = this.setup(numDecks);
+        this.cardList = this.setup(numDecks);
     }
 
     private List<Card> setup(int numDecks) {
@@ -38,14 +47,23 @@ public class Deck {
         return cards;
     }
 
+    public List<Card> getCards() {
+        return this.cardList;
+    }
+
+    public int size() {
+        return this.cardList.size();
+    }
+
     public Card draw() {
         // "reshuffle" the deck by resetting it
-        if (cardList.isEmpty()) {
+        if (cardList == null || cardList.isEmpty()) {
+            this.cardsDealt = 0;
             this.cardList = this.setup(this.numDecks);
         }
         int bounds = this.deckType.equals(DeckType.RANDOM) ? cardList.size() : 52 - Math.floorMod(cardsDealt, 52);
         int index = (int) (Math.random() * bounds);
-        cardsDealt++;
+        this.cardsDealt++;
         return cardList.remove(index);
     }
 }
