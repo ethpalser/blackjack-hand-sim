@@ -64,5 +64,63 @@ public class HandTest {
         Assert.assertEquals(19, value);
     }
 
+    @Test
+    public void isBust_sevenAndTen_false() {
+        Hand test = HandTestCases.hardSeventeen();
+        Assert.assertFalse(test.isBust());
+    }
+
+    @Test
+    public void isBust_aceAndSix_false() {
+        Hand test = HandTestCases.softSeventeen();
+        Assert.assertFalse(test.isBust());
+    }
+
+    @Test
+    public void isBust_aceJack_false() {
+        Hand test = HandTestCases.aceJack();
+        Assert.assertFalse(test.isBust());
+    }
+
+    @Test
+    public void isBust_sevenEightNine_true() {
+        Hand test = new Hand(Card.SEVEN, Card.EIGHT, Card.NINE);
+        Assert.assertTrue(test.isBust());
+    }
+
+    @Test
+    public void isWin_aceFiveSixVsSevenTen_false() {
+        Hand test = HandTestCases.aceFiveSix();
+        Hand dealer = HandTestCases.hardSeventeen();
+        Assert.assertFalse(test.isWin(dealer));
+    }
+
+    @Test
+    public void isWin_aceSixVsSevenTen_false() {
+        Hand test = HandTestCases.softSeventeen();
+        Hand dealer = HandTestCases.hardSeventeen();
+        Assert.assertFalse(test.isWin(dealer));
+    }
+
+    @Test
+    public void isWin_aceJackVsAceJack_false() {
+        Hand test = HandTestCases.aceJack();
+        Hand dealer = HandTestCases.aceJack();
+        Assert.assertFalse(test.isWin(dealer));
+    }
+
+    @Test
+    public void isWin_aceJackVsSevenTen_true() {
+        Hand test = HandTestCases.aceJack();
+        Hand dealer = HandTestCases.hardSeventeen();
+        Assert.assertTrue(test.isWin(dealer));
+    }
+
+    @Test
+    public void isWin_aceFiveSixVsSevenEightNine_true() {
+        Hand test = HandTestCases.aceFiveSix();
+        Hand dealer = new Hand(Card.SEVEN, Card.EIGHT, Card.NINE);
+        Assert.assertTrue(test.isWin(dealer));
+    }
 
 }

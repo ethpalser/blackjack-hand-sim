@@ -97,8 +97,8 @@ public class Hand {
         return bestValue > 21;
     }
 
-    public boolean isWin(int dealerValue) {
-        return !isBust() && bestValue > dealerValue;
+    public boolean isWin(Hand dealer) {
+        return !isBust() && (dealer.isBust() || bestValue > dealer.getValue());
     }
 
 }
