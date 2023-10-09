@@ -22,12 +22,12 @@ public class Player {
             return false;
         }
         Hand hand = handList.get(index);
-        if (hand.size() != 2 || hand.get(0).compareTo(hand.get(1)) != 0) {
+        if (hand.size() != 2 || hand.getCard(0).compareTo(hand.getCard(1)) != 0) {
             return false;
         }
 
-        handList.add(new Hand(hand.get(0)));
-        handList.add(new Hand(hand.get(1)));
+        handList.add(new Hand(hand.getCard(0)));
+        handList.add(new Hand(hand.getCard(1)));
         handList.remove(index);
         return true;
     }
