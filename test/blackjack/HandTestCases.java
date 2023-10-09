@@ -1,4 +1,4 @@
-package game;
+package blackjack;
 
 public class HandTestCases {
 

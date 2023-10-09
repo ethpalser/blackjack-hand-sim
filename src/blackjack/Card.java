@@ -1,4 +1,4 @@
-package game;
+package blackjack;
 
 /**
  * The representation of a playing card within the game of Blackjack.

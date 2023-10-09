@@ -1,4 +1,4 @@
-package game;
+package blackjack;
 
 public enum GameMode {
     ALL_PLAYERS_VISIBLE,
