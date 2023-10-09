@@ -85,4 +85,10 @@ public class Deck {
         this.cardsDealt++;
         return cardList.remove(index);
     }
+
+    public Card draw(boolean setVisible) {
+        Card drawn = this.draw();
+        drawn.setVisible(setVisible);
+        return drawn;
+    }
 }
