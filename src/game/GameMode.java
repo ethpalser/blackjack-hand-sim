@@ -1,6 +1,6 @@
 package game;
 
 public enum GameMode {
-    ALL_VISIBLE,
-    NO_VISIBLE,
+    ALL_PLAYERS_VISIBLE,
+    NO_PLAYERS_VISIBLE,
 }
