@@ -10,6 +10,7 @@ public class Deck {
     private final int numDecks;
     private List<Card> cardList;
     private int cardsDealt;
+    private int splitCard;
 
     public Deck() {
         this(DeckType.SEGMENTED, 1);
@@ -44,6 +45,9 @@ public class Deck {
                 }
             }
         }
+        // Add a random split card to the deck that the dealer will stop at
+        this.splitCard = (int) (cards.size() / 6.0 + Math.random() * cards.size() * 4.0 / 6.0);
+        this.cardsDealt = 0;
         return cards;
     }
 
@@ -56,9 +60,8 @@ public class Deck {
     }
 
     public Card draw() {
-        // "reshuffle" the deck by resetting it
-        if (cardList == null || cardList.isEmpty()) {
-            this.cardsDealt = 0;
+        // "reshuffle" the deck by resetting it, either when it is empty or when the split card is reached
+        if (cardList == null || cardList.isEmpty() || cardsDealt >= splitCard) {
             this.cardList = this.setup(this.numDecks);
         }
         int bounds = this.deckType.equals(DeckType.RANDOM) ? cardList.size() : 52 - Math.floorMod(cardsDealt, 52);
