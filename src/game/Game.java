@@ -31,16 +31,18 @@ public class Game {
     }
 
     public void setup() {
+        boolean isPlayerVisible = GameMode.ALL_PLAYERS_VISIBLE.equals(this.gameMode);
+
         deck.draw(); // The burn card, which is never used in blackjack
         for (Player player : players) {
-            player.dealHand(new Hand(deck.draw()));
+            player.dealHand(new Hand(deck.draw(isPlayerVisible)));
         }
-        dealer.dealHand(new Hand(deck.draw()));
+        dealer.dealHand(new Hand(deck.draw(false)));
 
         for (Player player : players) {
-            player.getHand(0).addCard(deck.draw());
+            player.getHand(0).addCard(deck.draw(isPlayerVisible));
         }
-        dealer.getHand(0).addCard(deck.draw());
+        dealer.getHand(0).addCard(deck.draw(true));
     }
 
 
