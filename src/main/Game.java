@@ -45,36 +45,10 @@ public class Game {
                     choice = 0;
                 }
                 case 3 -> {
-                    printSettingMenu();
-
-                    int settingChoice = 0;
-                    do {
-                        settingChoice = readChoice(br, 1, 3);
-                    } while (settingChoice == 0);
-                    if (settingChoice == -1)
-                        break;
-
-                    if (settingChoice == 1) {
-                        printSetting1Menu(gameMode);
-
-                        int modeChoice = 0;
-                        do {
-                            modeChoice = readChoice(br, 1, 2);
-                        } while (modeChoice == 0);
-                        if (modeChoice == -1)
-                            break;
-                        gameMode = modeChoice == 1 ? GameMode.ALL_PLAYERS_VISIBLE : GameMode.NO_PLAYERS_VISIBLE;
-                    } else if (settingChoice == 2) {
-                        printSetting2Menu(deckType);
-
-                        int typeChoice = 0;
-                        do {
-                            typeChoice = readChoice(br, 1, 2);
-                        } while (typeChoice == 0);
-                        if (typeChoice == -1)
-                            break;
-                        deckType = typeChoice == 1 ? DeckType.SEGMENTED : DeckType.RANDOM;
-                    }
+                    int[] settings = new int[]{gameMode.ordinal(), deckType.ordinal()};
+                    int[] newSettings = menuSettings(br, settings);
+                    gameMode = GameMode.values()[newSettings[0]];
+                    deckType = DeckType.values()[newSettings[1]];
                 }
                 default -> {
                     printInvalid();
@@ -130,20 +104,22 @@ public class Game {
         println("3. Back");
     }
 
-    private static void printSetting1Menu(GameMode currentSetting) {
+    private static void printSetting1Menu(int currentSetting) {
         println("Choose your game mode:");
-        println("1. All player hands are visible" + (GameMode.ALL_PLAYERS_VISIBLE.equals(currentSetting) ?
-                " (Current)" : ""));
-        println("2. Nod player hands are visible" + (GameMode.NO_PLAYERS_VISIBLE.equals(currentSetting) ?
-                " (Current)" : ""));
+        int pos = 1;
+        for (GameMode gameMode : GameMode.values()) {
+            println(pos + ". " + gameMode.getDisplay() + (gameMode.ordinal() == currentSetting ? " (Current)" : ""));
+            pos++;
+        }
     }
 
-    private static void printSetting2Menu(DeckType currentSetting) {
+    private static void printSetting2Menu(int currentSetting) {
         println("Choose your deck type:");
-        println("1. Multiple decks randomized in deck segments" + (DeckType.SEGMENTED.equals(currentSetting) ?
-                " (Current)" : ""));
-        println("2. Multiple decks completely randomized" + (DeckType.RANDOM.equals(currentSetting) ?
-                " (Current)" : ""));
+        int pos = 1;
+        for (DeckType deckType : DeckType.values()) {
+            println(pos + ". " + deckType.getDisplay() + (deckType.ordinal() == currentSetting ? " (Current)" : ""));
+            pos++;
+        }
     }
 
     private static void printUnavailable() {
@@ -155,5 +131,43 @@ public class Game {
     }
 
     // endregion
+
+    // region Input Menus
+
+    /**
+     * Accept user input until they back out, and return an array of settings. Each value's index in the array of
+     * settings corresponds to the setting menu options and its value is the sub-menu's options.
+     *
+     * @param originalSettings Original setting values
+     * @return New setting values
+     */
+    private static int[] menuSettings(BufferedReader br, int[] originalSettings) throws IOException {
+        printSettingMenu();
+        int[] newSettings = new int[originalSettings.length];
+        System.arraycopy(originalSettings, 0, newSettings, 0, newSettings.length);
+
+        int settingChoice;
+        do {
+            settingChoice = readChoice(br, 1, 3);
+        } while (settingChoice == 0);
+
+        int choiceMax = 1;
+        if (settingChoice == 1) {
+            printSetting1Menu(originalSettings[0]);
+            choiceMax = GameMode.values().length;
+        } else if (settingChoice == 2) {
+            printSetting2Menu(originalSettings[1]);
+            choiceMax = DeckType.values().length;
+        }
+
+        if (0 < settingChoice && settingChoice <= 2) {
+            int choice = 0;
+            do {
+                choice = readChoice(br, 1, choiceMax);
+            } while (choice <= 0);
+            newSettings[settingChoice - 1] = choice - 1;
+        }
+        return newSettings;
+    }
 
 }
