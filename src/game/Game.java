@@ -11,7 +11,7 @@ public class Game {
     private Deck deck;
 
     public Game() {
-        this(GameMode.NO_VISIBLE, 1, DeckType.SEGMENTED, 1);
+        this(GameMode.NO_PLAYERS_VISIBLE, 1, DeckType.SEGMENTED, 1);
     }
 
     public Game(GameMode gameMode, int numPlayers, DeckType deckType, int numDecks) {
