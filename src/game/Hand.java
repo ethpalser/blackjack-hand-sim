@@ -103,4 +103,13 @@ public class Hand {
         return !isBust() && (dealer.isBust() || bestValue > dealer.getValue());
     }
 
+    public int compare(Hand dealer) {
+        if (this.getValue() == dealer.getValue()) {
+            return 0;
+        } else if (isWin(dealer)) {
+            return 1;
+        }
+        return -1;
+    }
+
 }
