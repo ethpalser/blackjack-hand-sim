@@ -55,6 +55,8 @@ public class Hand {
     }
 
     public Card getCard(int index) {
+        if (index < 0 || cardList == null || index >= cardList.size())
+            return null;
         return cardList.get(index);
     }
 
