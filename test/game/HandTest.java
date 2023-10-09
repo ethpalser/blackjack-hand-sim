@@ -50,16 +50,16 @@ public class HandTest {
     public void add_aceToAceSix_equalsEighteen() {
         Hand test = HandTestCases.softSeventeen();
         // evaluate is executed when the new card is added
-        test.addCard(Card.ACE);
+        test.addCard(Card.ACE());
         int value = test.getValue();
         Assert.assertEquals(18, value);
     }
 
     @Test
     public void add_sevenToAceFiveSix_equalsNineteen() {
-        Hand test = new Hand(Card.ACE, Card.FIVE, Card.SIX);
+        Hand test = new Hand(Card.ACE(), Card.FIVE(), Card.SIX());
         // evaluate is executed when the new card is added
-        test.addCard(Card.SEVEN);
+        test.addCard(Card.SEVEN());
         int value = test.getValue();
         Assert.assertEquals(19, value);
     }
@@ -84,7 +84,7 @@ public class HandTest {
 
     @Test
     public void isBust_sevenEightNine_true() {
-        Hand test = new Hand(Card.SEVEN, Card.EIGHT, Card.NINE);
+        Hand test = new Hand(Card.SEVEN(), Card.EIGHT(), Card.NINE());
         Assert.assertTrue(test.isBust());
     }
 
@@ -119,7 +119,7 @@ public class HandTest {
     @Test
     public void isWin_aceFiveSixVsSevenEightNine_true() {
         Hand test = HandTestCases.aceFiveSix();
-        Hand dealer = new Hand(Card.SEVEN, Card.EIGHT, Card.NINE);
+        Hand dealer = new Hand(Card.SEVEN(), Card.EIGHT(), Card.NINE());
         Assert.assertTrue(test.isWin(dealer));
     }
 

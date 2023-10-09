@@ -10,6 +10,7 @@ public class Deck {
     private final int numDecks;
     private List<Card> cardList;
     private int cardsDealt;
+    private boolean hasSplitCard;
     private int splitCard;
 
     public Deck() {
@@ -22,9 +23,15 @@ public class Deck {
         this.cardList = new ArrayList<>();
         this.cardList.addAll(Arrays.asList(cards));
         this.cardsDealt = 52 * this.numDecks - cardList.size();
+        this.hasSplitCard = false;
+        this.splitCard = 52 * this.numDecks;
     }
 
     public Deck(DeckType deckType, int numDecks) {
+        this(deckType, numDecks, false);
+    }
+
+    public Deck(DeckType deckType, int numDecks, boolean hasSplitCard) {
         if (numDecks < 1) {
             numDecks = 1;
         }
@@ -33,20 +40,29 @@ public class Deck {
         }
         this.deckType = deckType;
         this.numDecks = numDecks;
-        this.cardList = this.setup(numDecks);
+        this.hasSplitCard = hasSplitCard;
+        this.cardList = this.setup(numDecks, hasSplitCard);
     }
 
     private List<Card> setup(int numDecks) {
+        return this.setup(numDecks, this.hasSplitCard);
+    }
+
+    private List<Card> setup(int numDecks, boolean hasSplitCard) {
         List<Card> cards = new ArrayList<>(52 * numDecks);
         for (int n = 0; n < numDecks; n++) {
-            for (int i = 0; i < Card.values().length; i++) {
+            for (int i = 0; i < 13; i++) {
                 for (int j = 0; j < 4; j++) {
-                    cards.add(Card.values()[i]);
+                    cards.add(new Card(i, CardSuit.values()[j], false));
                 }
             }
         }
         // Add a random split card to the deck that the dealer will stop at
-        this.splitCard = (int) (cards.size() / 6.0 + Math.random() * cards.size() * 4.0 / 6.0);
+        if (hasSplitCard) {
+            this.splitCard = (int) (cards.size() / 6.0 + Math.random() * cards.size() * 4.0 / 6.0);
+        } else {
+            this.splitCard = 52 * numDecks;
+        }
         this.cardsDealt = 0;
         return cards;
     }

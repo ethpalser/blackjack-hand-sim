@@ -74,7 +74,7 @@ public class Hand {
         int totalValue = 0;
         for (Card card : cardList) {
             // Add aces later, as it can have the value of 1 or 11
-            if (card.compareTo(Card.ACE) == 0) {
+            if (card.compareTo(Card.ACE()) == 0) {
                 numAces++;
             } else {
                 totalValue += card.getValue();
