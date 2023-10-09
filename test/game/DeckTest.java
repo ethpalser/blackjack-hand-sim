@@ -14,7 +14,7 @@ public class DeckTest {
         List<Card> cards = test.getCards();
         cards.forEach(card -> {
             // Using the ordinal position of the card to count each card
-            cardCount[card.ordinal()]++;
+            cardCount[card.getType().ordinal()]++;
         });
 
         Assert.assertEquals(52, test.size());
@@ -29,7 +29,7 @@ public class DeckTest {
         List<Card> cards = test.getCards();
         cards.forEach(card -> {
             // Using the ordinal position of the card to count each card
-            cardCount[card.ordinal()]++;
+            cardCount[card.getType().ordinal()]++;
         });
 
         Assert.assertEquals(156, test.size());
@@ -38,15 +38,15 @@ public class DeckTest {
 
     @Test
     public void draw_oneCardInDeck_shouldBeLastCard() {
-        Deck test = new Deck(DeckType.SEGMENTED, Card.ACE);
+        Deck test = new Deck(DeckType.SEGMENTED, Card.ACE());
         Card card = test.draw();
-        Assert.assertEquals(Card.ACE, card);
+        Assert.assertEquals(Card.ACE().getType(), card.getType());
         Assert.assertEquals(0, test.size());
     }
 
     @Test
     public void draw_noCardInDeck_shouldBeAnyCard() {
-        Deck test = new Deck(DeckType.SEGMENTED, Card.ACE);
+        Deck test = new Deck(DeckType.SEGMENTED, Card.ACE());
         test.draw(); // Empty the deck
         Card card = test.draw();
         Assert.assertNotNull(card);
@@ -59,7 +59,7 @@ public class DeckTest {
 
         int[] cardCount = new int[13];
         for (int i = 0; i < 52; i++) {
-            cardCount[test.draw().ordinal()]++;
+            cardCount[test.draw().getType().ordinal()]++;
         }
         Assert.assertArrayEquals(new int[]{4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4}, cardCount);
     }
