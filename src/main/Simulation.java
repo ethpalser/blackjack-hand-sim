@@ -1,13 +1,13 @@
 package main;
 
-import blackjack.Game;
+import blackjack.Table;
 
 public class Simulation implements Runnable {
 
-    private Game game;
+    private Table table;
 
     private Simulation() {
-        game = new Game();
+        table = new Table();
     }
 
     @Override
