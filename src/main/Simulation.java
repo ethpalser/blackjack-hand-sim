@@ -1,6 +1,6 @@
 package main;
 
-import game.Game;
+import blackjack.Game;
 
 public class Simulation implements Runnable {
 

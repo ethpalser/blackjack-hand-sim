@@ -1,4 +1,4 @@
-package game;
+package blackjack;
 
 
 import org.junit.Assert;

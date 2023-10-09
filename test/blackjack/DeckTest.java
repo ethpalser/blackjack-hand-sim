@@ -1,4 +1,4 @@
-package game;
+package blackjack;
 
 import java.util.List;
 import org.junit.Assert;
