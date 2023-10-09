@@ -11,7 +11,7 @@ public class Game {
     private Deck deck;
 
     public Game() {
-        this(GameMode.NO_PLAYERS_VISIBLE, 1, DeckType.SEGMENTED, 1);
+        this(GameMode.ALL_PLAYERS_VISIBLE, 1, DeckType.SEGMENTED, 1);
     }
 
     public Game(GameMode gameMode, int numPlayers, DeckType deckType, int numDecks) {
@@ -24,6 +24,23 @@ public class Game {
         }
 
         this.deck = new Deck(deckType, numDecks);
+    }
+
+    public GameMode getGameMode() {
+        return this.gameMode;
+    }
+
+    public void setup() {
+        deck.draw(); // The burn card, which is never used in blackjack
+        for (Player player : players) {
+            player.dealHand(new Hand(deck.draw()));
+        }
+        dealer.dealHand(new Hand(deck.draw()));
+
+        for (Player player : players) {
+            player.getHand(0).addCard(deck.draw());
+        }
+        dealer.getHand(0).addCard(deck.draw());
     }
 
 
