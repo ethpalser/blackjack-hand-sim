@@ -1,6 +1,7 @@
 package game;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Hand {
@@ -26,7 +27,7 @@ public class Hand {
     public Hand(Card card) {
         cardList = new ArrayList<>(8);
         cardList.add(card);
-        bestValue = this.evaluate();
+        this.evaluate();
     }
 
     /**
@@ -40,23 +41,33 @@ public class Hand {
         cardList = new ArrayList<>(8);
         cardList.add(first);
         cardList.add(second);
-        bestValue = this.evaluate();
+        this.evaluate();
+    }
+
+    public Hand(Card... cards) {
+        cardList = new ArrayList<>(8);
+        cardList.addAll(Arrays.asList(cards));
+        this.evaluate();
     }
 
     public int size() {
         return cardList.size();
     }
 
-    public Card get(int index) {
+    public Card getCard(int index) {
         return cardList.get(index);
     }
 
-    public void add(Card card) {
+    public void addCard(Card card) {
         cardList.add(card);
-        this.bestValue = this.evaluate();
+        this.evaluate();
     }
 
-    public int evaluate() {
+    public int getValue() {
+        return this.bestValue;
+    }
+
+    private void evaluate() {
         int numAces = 0;
         int totalValue = 0;
         for (Card card : cardList) {
@@ -79,7 +90,7 @@ public class Hand {
                 totalValue += 1;
             }
         }
-        return totalValue;
+        this.bestValue = totalValue;
     }
 
     public boolean isBust() {
