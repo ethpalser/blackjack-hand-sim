@@ -1,6 +1,5 @@
 package main;
 
-import blackjack.Deck;
 import blackjack.DeckType;
 import blackjack.GameMode;
 import blackjack.Hand;
@@ -9,10 +8,13 @@ import blackjack.Table;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Random;
 
 public class Game {
 
     public static void main(String[] args) throws IOException {
+        Random random = new Random();
+
         InputStreamReader isr = new InputStreamReader(System.in);
         BufferedReader br = new BufferedReader(isr);
 
@@ -40,23 +42,38 @@ public class Game {
                     numPlayers = readChoice(br, 1, 8);
                     println("How many decks are used? (max 4)");
                     numDecks = readChoice(br, 1, 4);
-                    // This is currently decided by the player, but may be assigned randomly or by join priority
-                    println("What player are you?");
-                    playerPos = readChoice(br, 1, numPlayers);
+                    playerPos = random.nextInt(numPlayers);
+
                     table = new Table(numPlayers, numDecks, gameMode, deckType);
-                    table.setup();
-                    println(table.toString(playerPos));
+
                     // Start main loop of game
-                    Player player = table.getPlayer(playerPos - 1);
-                    boolean forceQuit = playerAction(br, player, table.getDeck());
-                    if (forceQuit) {
-                        break;
+                    while(true) {
+                        table.setup();
+                        println(table.toString(playerPos + 1));
+
+                        Player player = table.getPlayer(playerPos);
+                        boolean forceQuit = playerAction(br, table, playerPos);
+                        if (forceQuit) {
+                            break;
+                        }
+
+                        table.resolve();
+                        println(table.toString(playerPos, true));
                     }
-                    
+
+                    // Todo: Add in bets. End game when bet is 0 or exit
                 }
                 case 2 -> {
                     printUnavailable();
                     choice = 0;
+                    // Todo: add option to simulate random starting or to load from file (including optional seed)
+                    // ensure that the burn card is still unknown and will be removed randomly for every simulation
+                    // Todo: display table and identify the player (should work in both modes)
+                    // Todo: display player initial options (hit, stand, split, surrender)
+                    // Todo: create list for stand, hit1, hit2, hit3 then simulate the given hand for x times at the
+                    //  fixed table state
+                    // Todo: execute simulations in multiple threads then communicate results with message queue
+                    // Todo: display final result
                 }
                 case 3 -> {
                     int[] settings = new int[]{gameMode.ordinal(), deckType.ordinal()};
@@ -94,6 +111,7 @@ public class Game {
                 choice = Integer.parseInt(response);
             } catch (NumberFormatException ex) {
                 printInvalid();
+                return 0;
             }
 
             isValidChoice = choiceMin <= choice && choice <= choiceMax;
@@ -123,7 +141,7 @@ public class Game {
             option++;
         }
         if (showSurrender) {
-            println(option + ". Split (Split this hand)");
+            println(option + ". Surrender (Forfeit hand, but only lose half your bet)");
         }
     }
 
@@ -164,22 +182,26 @@ public class Game {
 
     // region Input Menus
 
-    private static boolean playerAction(BufferedReader br, Player player, Deck deck) throws IOException {
+    private static boolean playerAction(BufferedReader br, Table table, int playerNum) throws IOException {
+        Player player = table.getPlayer(playerNum);
         for (int i = 0; i < player.getHandQty(); i++) {
             Hand currentHand = player.getHand(i);
             boolean canSplit = player.canSplitHands() && currentHand.canSplit();
             boolean canSurrender = i == 0 && player.getHandQty() == 1 && currentHand.size() == 2;
-            int pChoiceQty = canSplit && canSurrender ? 4 : canSplit || canSurrender ? 3 : 2;
 
+            int pChoiceQty;
             int choice;
             boolean playHand;
             do {
+                pChoiceQty = canSplit && canSurrender ? 4 : canSplit || canSurrender ? 3 : 2;
                 printPlayerMenu(currentHand.toString(), canSplit, canSurrender);
                 choice = readChoice(br, 1, pChoiceQty);
                 if (choice == -1) {
                     return true;
                 }
-                playHand = player.action(i, choice, deck);
+                playHand = table.play(playerNum, i, choice);
+                canSurrender = false;
+                println("Result: " + currentHand + "\n");
             } while (playHand);
         }
         return false;

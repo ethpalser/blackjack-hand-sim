@@ -30,6 +30,15 @@ public class Player {
         return handList.size() < 4;
     }
 
+    public void splitHand(int index) {
+        if (index < 0 || index >= getHandQty()) {
+            return;
+        }
+        Hand hand = getHand(index);
+        handList.remove(index);
+        handList.addAll(hand.split());
+    }
+
     public void showHands() {
         for (Hand hand : handList) {
             hand.showHand();
@@ -42,31 +51,9 @@ public class Player {
         }
     }
 
-    public boolean action(int hIndex, int choice, Deck deck) {
-        if (hIndex < 0 || this.getHandQty() <= hIndex) {
-            return false;
-        }
-
-        Hand hand = this.getHand(hIndex);
-        switch (choice) {
-            // hit
-            case 1 -> {
-                hand.addCard(deck.draw());
-                return !hand.isBust();
-            }
-            // split
-            case 3 -> {
-                if (!hand.canSplit()) {
-                    return true;
-                }
-                handList.remove(hIndex);
-                handList.addAll(hand.split());
-                return true;
-            }
-            // stand and surrender (for now)
-            default -> {
-                return false;
-            }
+    public void resolveHands(Player dealer) {
+        for (Hand hand : handList) {
+            hand.setResult(dealer.getHand(0));
         }
     }
 

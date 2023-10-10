@@ -127,21 +127,24 @@ public class HandTest {
     public void compare_aceFiveSixVsSevenTen_isLoss() {
         Hand test = HandTestCases.aceFiveSix();
         Hand dealer = HandTestCases.hardSeventeen();
-        Assert.assertEquals(-1, test.compare(dealer));
+        test.setResult(dealer);
+        Assert.assertEquals(HandResult.LOSS, test.getResult());
     }
 
     @Test
     public void compare_aceSixVsSevenTen_isDraw() {
         Hand test = HandTestCases.softSeventeen();
         Hand dealer = HandTestCases.hardSeventeen();
-        Assert.assertEquals(0, test.compare(dealer));
+        test.setResult(dealer);
+        Assert.assertEquals(HandResult.DRAW, test.getResult());
     }
 
     @Test
     public void compare_aceJackVsSevenTen_isWin() {
         Hand test = HandTestCases.aceJack();
         Hand dealer = HandTestCases.hardSeventeen();
-        Assert.assertEquals(1, test.compare(dealer));
+        test.setResult(dealer);
+        Assert.assertEquals(HandResult.WIN, test.getResult());
     }
 
 }

@@ -83,7 +83,9 @@ public class Deck {
         int bounds = this.deckType.equals(DeckType.RANDOM) ? cardList.size() : 52 - Math.floorMod(cardsDealt, 52);
         int index = (int) (Math.random() * bounds);
         this.cardsDealt++;
-        return cardList.remove(index);
+        Card card = cardList.remove(index);
+        card.setVisible(true);
+        return card;
     }
 
     public Card draw(boolean setVisible) {

@@ -40,7 +40,48 @@ public class Table {
         dealer.getHand(0).addCard(deck.draw(true));
     }
 
-    public Deck getDeck () {
+    public boolean play(int playerNum, int handNum, int choice) {
+        if (playerNum < 0 || playerNum >= players.size()) {
+            return false;
+        }
+        Player player = getPlayer(playerNum);
+
+        if (handNum < 0 || handNum >= player.getHandQty()) {
+            return false;
+        }
+        Hand hand = player.getHand(handNum);
+        switch (choice) {
+            // hit
+            case 1 -> {
+                hand.addCard(deck.draw());
+                return !hand.isBust();
+            }
+            // split
+            case 3 -> {
+                if (!hand.canSplit()) {
+                    return true;
+                }
+                player.splitHand(handNum);
+                return true;
+            }
+            // stand and surrender (for now)
+            default -> {
+                return false;
+            }
+        }
+    }
+
+    public void resolve() {
+        // Dealer stands on 17, this can be updated in the future to have dealer hit on soft 17
+        while(dealer.getHand(0).getValue() < 17) {
+            dealer.getHand(0).addCard(deck.draw());
+        }
+        for (Player player : players) {
+            player.resolveHands(dealer);
+        }
+    }
+
+    public Deck getDeck() {
         return deck;
     }
 
@@ -48,24 +89,21 @@ public class Table {
         return dealer;
     }
 
+    public List<Player> getPlayers() {
+        return players;
+    }
+
     public Player getPlayer(int index) {
         return players.get(index);
     }
 
     @Override
-    public String toString(){
-        StringBuilder sb = new StringBuilder();
-        if (dealer != null) {
-            sb.append("Dealer: ").append(dealer).append("\n");
-        }
-        if (players != null) {
-            int pos = 1;
-            for (Player player : players) {
-                sb.append("Player ").append(pos).append(": ").append(player).append("\n");
-                pos++;
-            }
-        }
-        return sb.toString();
+    public String toString() {
+        return toString(-1, true);
+    }
+
+    public String toString(int playerNum) {
+        return toString(playerNum, false);
     }
 
     /**
@@ -74,28 +112,37 @@ public class Table {
      * @param playerNum The player number the user has been assigned
      * @return String representing the table with all cards visible to the player
      */
-    public String toString(int playerNum){
+    public String toString(int playerNum, boolean showResult) {
         StringBuilder sb = new StringBuilder();
         if (dealer != null) {
-            sb.append("Dealer: ").append(dealer).append("\n");
+            sb.append(displayDealer(showResult)).append("\n");
         }
         if (players != null) {
-            int pos = 1;
-            for (Player player : players) {
-                sb.append("Player ").append(pos);
-                if (playerNum == pos) {
-                    sb.append(" (You)");
-                    player.showHands();
-                }
-                sb.append(": ").append(player).append("\n");
-
-                if (playerNum == pos && GameMode.NO_PLAYERS_VISIBLE.equals(gameMode)) {
-                    player.hideHands();
-                }
-                pos++;
+            // The displayed and assigned player numbers start at 1
+            for (int p = 1; p <= players.size(); p++) {
+                sb.append(displayPlayer(p, p == playerNum, showResult)).append("\n");
             }
         }
         return sb.toString();
+    }
+
+    public String displayDealer(boolean showAll) {
+        if (showAll) {
+            dealer.showHands();
+        }
+        return "Dealer: " + dealer.toString() + (dealer.getHand(0).isBust() ? " (BUST!)" : "");
+    }
+
+    public String displayPlayer(int playerNum, boolean isPlayer, boolean showAll) {
+        Player player = getPlayer(playerNum - 1);
+        if (isPlayer || showAll) {
+            player.showHands();
+        }
+        String str = "Player " + playerNum + (isPlayer ? " (You)" : "") + ": " + player.toString();
+        if (GameMode.NO_PLAYERS_VISIBLE.equals(gameMode)) {
+            player.hideHands();
+        }
+        return str;
     }
 
 }

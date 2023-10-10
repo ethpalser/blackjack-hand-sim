@@ -8,6 +8,7 @@ public class Hand {
 
     private final List<Card> cardList;
     private int bestValue;
+    private HandResult result;
 
     /**
      * Initialize a hand with no cards.
@@ -15,6 +16,7 @@ public class Hand {
     public Hand() {
         cardList = new ArrayList<>();
         bestValue = 0;
+        result = null;
     }
 
     /**
@@ -28,6 +30,7 @@ public class Hand {
         cardList = new ArrayList<>(8);
         cardList.add(card);
         this.evaluate();
+        result = null;
     }
 
     /**
@@ -42,12 +45,14 @@ public class Hand {
         cardList.add(first);
         cardList.add(second);
         this.evaluate();
+        result = null;
     }
 
     public Hand(Card... cards) {
         cardList = new ArrayList<>(8);
         cardList.addAll(Arrays.asList(cards));
         this.evaluate();
+        result = null;
     }
 
     public int size() {
@@ -105,6 +110,9 @@ public class Hand {
             }
         }
         this.bestValue = totalValue;
+        if (isBust()) {
+            this.result = HandResult.LOSS;
+        }
     }
 
     public boolean isBust() {
@@ -129,13 +137,18 @@ public class Hand {
         return newHands;
     }
 
-    public int compare(Hand dealer) {
-        if (this.getValue() == dealer.getValue()) {
-            return 0;
+    public HandResult getResult() {
+        return result;
+    }
+
+    public void setResult(Hand dealer) {
+        if (!isBust() && this.getValue() == dealer.getValue()) {
+            this.result = HandResult.DRAW;
         } else if (isWin(dealer)) {
-            return 1;
+            this.result = HandResult.WIN;
+        } else {
+            this.result = HandResult.LOSS;
         }
-        return -1;
     }
 
     @Override
@@ -143,6 +156,9 @@ public class Hand {
         StringBuilder sb = new StringBuilder();
         for(Card card : cardList) {
             sb.append(card.getVisible() ? card.toString() : "x");
+        }
+        if (result != null) {
+            sb.append(" (").append(result).append(")");
         }
         return sb.toString();
     }
