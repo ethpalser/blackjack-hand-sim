@@ -5,15 +5,17 @@ import java.util.List;
 
 public class Table {
 
+    private final GameMode gameMode;
     private final Player dealer;
     private List<Player> players;
     private Deck deck;
 
     public Table() {
-        this(1, DeckType.SEGMENTED, 1);
+        this(1, 1, GameMode.ALL_PLAYERS_VISIBLE, DeckType.SEGMENTED);
     }
 
-    public Table(int numPlayers, DeckType deckType, int numDecks) {
+    public Table(int numPlayers, int numDecks, GameMode gameMode, DeckType deckType) {
+        this.gameMode = gameMode;
         this.dealer = new Player();
         this.players = new ArrayList<>();
         for (int i = 0; i < numPlayers; i++) {
@@ -24,11 +26,7 @@ public class Table {
     }
 
     public void setup() {
-        this.setup(GameMode.ALL_PLAYERS_VISIBLE);
-    }
-
-    public void setup(GameMode gameMode) {
-        boolean isPlayerVisible = GameMode.ALL_PLAYERS_VISIBLE.equals(gameMode);
+        boolean isPlayerVisible = GameMode.ALL_PLAYERS_VISIBLE.equals(this.gameMode);
 
         deck.draw(); // The burn card, which is never used in blackjack
         for (Player player : players) {
@@ -42,5 +40,50 @@ public class Table {
         dealer.getHand(0).addCard(deck.draw(true));
     }
 
+    @Override
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        if (dealer != null) {
+            sb.append("Dealer: ").append(dealer).append("\n");
+        }
+        if (players != null) {
+            int pos = 1;
+            for (Player player : players) {
+                sb.append("Player ").append(pos).append(": ").append(player).append("\n");
+                pos++;
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Print the table, but display the current player's cards regardless of those card's visibility.
+     *
+     * @param playerNum The player number the user has been assigned
+     * @return String representing the table with all cards visible to the player
+     */
+    public String toString(int playerNum){
+        StringBuilder sb = new StringBuilder();
+        if (dealer != null) {
+            sb.append("Dealer: ").append(dealer).append("\n");
+        }
+        if (players != null) {
+            int pos = 1;
+            for (Player player : players) {
+                sb.append("Player ").append(pos);
+                if (playerNum == pos) {
+                    sb.append(" (You)");
+                    player.showHands();
+                }
+                sb.append(": ").append(player).append("\n");
+
+                if (playerNum == pos && GameMode.NO_PLAYERS_VISIBLE.equals(gameMode)) {
+                    player.hideHands();
+                }
+                pos++;
+            }
+        }
+        return sb.toString();
+    }
 
 }

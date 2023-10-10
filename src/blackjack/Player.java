@@ -37,4 +37,25 @@ public class Player {
         handList.remove(index);
         return true;
     }
+
+    public void showHands() {
+        for (Hand hand : handList) {
+            hand.showHand();
+        }
+    }
+
+    public void hideHands() {
+        for (Hand hand : handList) {
+            hand.hideHand();
+        }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for(Hand hand : handList) {
+            sb.append(hand.toString()).append("\t");
+        }
+        return sb.toString();
+    }
 }
