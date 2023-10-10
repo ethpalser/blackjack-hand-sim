@@ -11,6 +11,10 @@ public class Player {
         this.handList = new ArrayList<>();
     }
 
+    public int getHandQty() {
+        return handList.size();
+    }
+
     public Hand getHand(int index) {
         if (index < 0 || handList == null || index >= handList.size())
             return null;
@@ -22,20 +26,8 @@ public class Player {
         handList.add(hand);
     }
 
-    public boolean splitHand(int index) {
-        // Restricting splits to a maximum of 4
-        if (handList.size() >= 4) {
-            return false;
-        }
-        Hand hand = handList.get(index);
-        if (hand.size() != 2 || hand.getCard(0).compareTo(hand.getCard(1)) != 0) {
-            return false;
-        }
-
-        handList.add(new Hand(hand.getCard(0)));
-        handList.add(new Hand(hand.getCard(1)));
-        handList.remove(index);
-        return true;
+    public boolean canSplitHands() {
+        return handList.size() < 4;
     }
 
     public void showHands() {
@@ -50,10 +42,38 @@ public class Player {
         }
     }
 
+    public boolean action(int hIndex, int choice, Deck deck) {
+        if (hIndex < 0 || this.getHandQty() <= hIndex) {
+            return false;
+        }
+
+        Hand hand = this.getHand(hIndex);
+        switch (choice) {
+            // hit
+            case 1 -> {
+                hand.addCard(deck.draw());
+                return !hand.isBust();
+            }
+            // split
+            case 3 -> {
+                if (!hand.canSplit()) {
+                    return true;
+                }
+                handList.remove(hIndex);
+                handList.addAll(hand.split());
+                return true;
+            }
+            // stand and surrender (for now)
+            default -> {
+                return false;
+            }
+        }
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for(Hand hand : handList) {
+        for (Hand hand : handList) {
             sb.append(hand.toString()).append("\t");
         }
         return sb.toString();

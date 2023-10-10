@@ -40,6 +40,18 @@ public class Table {
         dealer.getHand(0).addCard(deck.draw(true));
     }
 
+    public Deck getDeck () {
+        return deck;
+    }
+
+    public Player getDealer() {
+        return dealer;
+    }
+
+    public Player getPlayer(int index) {
+        return players.get(index);
+    }
+
     @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();
