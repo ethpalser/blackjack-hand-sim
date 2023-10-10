@@ -10,7 +10,7 @@ public class Deck {
     private final int numDecks;
     private List<Card> cardList;
     private int cardsDealt;
-    private boolean hasSplitCard;
+    private boolean hasSplitCard; // This card is inserted to the deck randomly to reduce card counting
     private int splitCard;
 
     public Deck() {
@@ -35,8 +35,8 @@ public class Deck {
         if (numDecks < 1) {
             numDecks = 1;
         }
-        if (numDecks > 4) {
-            numDecks = 4;
+        if (numDecks > 8) {
+            numDecks = 8;
         }
         this.deckType = deckType;
         this.numDecks = numDecks;
