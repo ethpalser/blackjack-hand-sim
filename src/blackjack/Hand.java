@@ -115,6 +115,20 @@ public class Hand {
         return !isBust() && (dealer.isBust() || bestValue > dealer.getValue());
     }
 
+    public boolean canSplit() {
+        return cardList.size() == 2 && cardList.get(0).compareTo(cardList.get(1)) == 0;
+    }
+
+    public List<Hand> split() {
+        if (!canSplit()) {
+            return List.of(this);
+        }
+        List<Hand> newHands = new ArrayList<>();
+        newHands.add(new Hand(getCard(0)));
+        newHands.add(new Hand(getCard(1)));
+        return newHands;
+    }
+
     public int compare(Hand dealer) {
         if (this.getValue() == dealer.getValue()) {
             return 0;
@@ -128,7 +142,7 @@ public class Hand {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for(Card card : cardList) {
-            sb.append(card.getVisible() ? card.toString() : "x").append(" ");
+            sb.append(card.getVisible() ? card.toString() : "x");
         }
         return sb.toString();
     }

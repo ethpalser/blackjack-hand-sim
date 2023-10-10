@@ -1,7 +1,10 @@
 package main;
 
+import blackjack.Deck;
 import blackjack.DeckType;
 import blackjack.GameMode;
+import blackjack.Hand;
+import blackjack.Player;
 import blackjack.Table;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -43,6 +46,13 @@ public class Game {
                     table = new Table(numPlayers, numDecks, gameMode, deckType);
                     table.setup();
                     println(table.toString(playerPos));
+                    // Start main loop of game
+                    Player player = table.getPlayer(playerPos - 1);
+                    boolean forceQuit = playerAction(br, player, table.getDeck());
+                    if (forceQuit) {
+                        break;
+                    }
+                    
                 }
                 case 2 -> {
                     printUnavailable();
@@ -103,6 +113,20 @@ public class Game {
         println("3. Update Settings");
     }
 
+    private static void printPlayerMenu(String hand, boolean showSplit, boolean showSurrender) {
+        println("What will you do for this hand (" + hand + ")?");
+        println("1. Hit (Add another card)");
+        println("2. Stand (Pass to next hand/player)");
+        int option = 3;
+        if (showSplit) {
+            println(option + ". Split (Split this hand)");
+            option++;
+        }
+        if (showSurrender) {
+            println(option + ". Split (Split this hand)");
+        }
+    }
+
     private static void printSettingMenu() {
         println("What do you want to change?");
         println("1. Game Mode");
@@ -139,6 +163,27 @@ public class Game {
     // endregion
 
     // region Input Menus
+
+    private static boolean playerAction(BufferedReader br, Player player, Deck deck) throws IOException {
+        for (int i = 0; i < player.getHandQty(); i++) {
+            Hand currentHand = player.getHand(i);
+            boolean canSplit = player.canSplitHands() && currentHand.canSplit();
+            boolean canSurrender = i == 0 && player.getHandQty() == 1 && currentHand.size() == 2;
+            int pChoiceQty = canSplit && canSurrender ? 4 : canSplit || canSurrender ? 3 : 2;
+
+            int choice;
+            boolean playHand;
+            do {
+                printPlayerMenu(currentHand.toString(), canSplit, canSurrender);
+                choice = readChoice(br, 1, pChoiceQty);
+                if (choice == -1) {
+                    return true;
+                }
+                playHand = player.action(i, choice, deck);
+            } while (playHand);
+        }
+        return false;
+    }
 
     /**
      * Accept user input until they back out, and return an array of settings. Each value's index in the array of

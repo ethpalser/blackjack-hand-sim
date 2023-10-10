@@ -105,7 +105,7 @@ public class Card implements Comparable<Card> {
 
     @Override
     public String toString() {
-        return this.cardType.toString() + this.cardSuit.toString();
+        return this.cardType.toString();
     }
 
     // region Static Cards
