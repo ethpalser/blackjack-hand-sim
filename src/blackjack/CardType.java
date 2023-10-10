@@ -32,6 +32,27 @@ public enum CardType {
         return this.value;
     }
 
+    public boolean isPoor() {
+        return switch (this) {
+            case FOUR, FIVE, SIX -> true;
+            default -> false;
+        };
+    }
+
+    public boolean isFair() {
+        return switch (this) {
+            case TWO, THREE -> true;
+            default -> false;
+        };
+    }
+
+    public boolean isGood() {
+        return switch (this) {
+            case ACE, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING -> true;
+            default -> false;
+        };
+    }
+
     @Override
     public String toString() {
         return this.str;

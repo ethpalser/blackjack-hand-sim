@@ -57,6 +57,58 @@ public class Player {
         }
     }
 
+    /**
+     * This will return a choice using known information from the player's hand and the dealer's hand. Choices are
+     * the following:
+     * 1. Hit
+     * 2. Stand
+     * 3. Split
+     * 4. Surrender
+     *
+     * @param handIndex The hand that the choice will be made for. In most cases this value is 0.
+     * @param dealerHand The dealer's hand that decisions will be based off of.
+     * @return A choice that will be performed
+     */
+    public int choose(int handIndex, Hand dealerHand) {
+        Hand playerHand = this.getHand(handIndex);
+        Card dealerUpCard = dealerHand.getCard(1);
+
+        // This is a winning hand, unless the dealer also has blackjack
+        if (playerHand.getValue() == 21) {
+            return 2;
+        }
+        if (canSplitHands()) {
+            CardType type = playerHand.getCard(0).getType();
+            // Always split Ace and Eight, split Two, Three and Seven if up card is not good and Six if up card is poor
+            if (CardType.ACE.equals(type) || CardType.EIGHT.equals(type)
+                    || !dealerUpCard.getType().isGood() && (CardType.TWO.equals(type) || CardType.THREE.equals(type)
+                    || CardType.SEVEN.equals(type))
+                    || dealerUpCard.getType().isPoor() && CardType.SIX.equals(type)) {
+                return 3;
+            }
+        }
+        // This is a soft hand, so it is okay to hit in any case
+        if (playerHand.getValue() == 17 && (playerHand.getCard(0).getType().equals(CardType.ACE)
+                || playerHand.getCard(1).getType().equals(CardType.ACE))) {
+            return 1;
+        }
+        // If below 17 and the dealer's up card is good, you are likely to lose, so it is better to try higher
+        if (playerHand.getValue() < 17 && (dealerUpCard.getValue() == 7 || dealerUpCard.getValue() == 8
+                || dealerUpCard.getValue() == 9 || dealerUpCard.getValue() == 10
+                || dealerUpCard.getType().equals(CardType.ACE))) {
+            return 1;
+        }
+        // The dealer is likely to bust trying to reach 17
+        if (playerHand.getValue() < 12 && dealerUpCard.getType().isPoor()) {
+            return 1;
+        }
+        // The dealer is likely to bust trying to reach 17
+        if (playerHand.getValue() < 13 && dealerUpCard.getType().isFair()) {
+            return 1;
+        }
+        return 2;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
