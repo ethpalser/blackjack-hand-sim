@@ -62,7 +62,7 @@ public class Table {
                     return true;
                 }
                 player.splitHand(handNum);
-                return true;
+                return false;
             }
             // stand and surrender (for now)
             default -> {
