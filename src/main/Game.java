@@ -9,25 +9,21 @@ import java.io.InputStreamReader;
 
 public class Game {
 
-    private Table table;
-
-    public Game(int numPlayers, int numDecks) {
-        this.table = new Table(numPlayers, DeckType.SEGMENTED, numDecks);
-    }
-
     public static void main(String[] args) throws IOException {
         InputStreamReader isr = new InputStreamReader(System.in);
         BufferedReader br = new BufferedReader(isr);
 
+        Table table = null;
         int choice = 0;
         int numPlayers = 0;
         int numDecks = 0;
+        int playerPos = 0;
         GameMode gameMode = GameMode.ALL_PLAYERS_VISIBLE;
         DeckType deckType = DeckType.SEGMENTED;
 
         while (choice != -1) {
             printMainMenu();
-            println("Respond with 'exit' at any point to quit.");
+            println("Respond with 'exit' to quit.");
             // Choose in Menu
             do {
                 choice = readChoice(br, 1, 3);
@@ -37,8 +33,16 @@ public class Game {
 
             switch (choice) {
                 case 1 -> {
-                    printUnavailable();
-                    choice = 0;
+                    println("How many players are there? (max 8)");
+                    numPlayers = readChoice(br, 1, 8);
+                    println("How many decks are used? (max 4)");
+                    numDecks = readChoice(br, 1, 4);
+                    // This is currently decided by the player, but may be assigned randomly or by join priority
+                    println("What player are you?");
+                    playerPos = readChoice(br, 1, numPlayers);
+                    table = new Table(numPlayers, numDecks, gameMode, deckType);
+                    table.setup();
+                    println(table.toString(playerPos));
                 }
                 case 2 -> {
                     printUnavailable();
@@ -68,24 +72,26 @@ public class Game {
     }
 
     private static int readChoice(BufferedReader br, int choiceMin, int choiceMax) throws IOException {
-        String response = br.readLine();
-        if (isExit(response)) {
-            return -1;
-        }
-
         int choice = 0;
-        try {
-            choice = Integer.parseInt(response);
-        } catch (NumberFormatException ex) {
-            printInvalid();
-        }
+        boolean isValidChoice = false;
+        do {
+            String response = br.readLine();
+            if (isExit(response)) {
+                return -1;
+            }
 
-        boolean isValidChoice = choiceMin <= choice && choice <= choiceMax;
-        if (!isValidChoice) {
-            printInvalid();
-        }
+            try {
+                choice = Integer.parseInt(response);
+            } catch (NumberFormatException ex) {
+                printInvalid();
+            }
 
-        return isValidChoice ? choice : 0;
+            isValidChoice = choiceMin <= choice && choice <= choiceMax;
+            if (!isValidChoice) {
+                printInvalid();
+            }
+        } while (!isValidChoice);
+        return choice;
     }
 
     // region Dialogue Menus
@@ -146,10 +152,7 @@ public class Game {
         int[] newSettings = new int[originalSettings.length];
         System.arraycopy(originalSettings, 0, newSettings, 0, newSettings.length);
 
-        int settingChoice;
-        do {
-            settingChoice = readChoice(br, 1, 3);
-        } while (settingChoice == 0);
+        int settingChoice = readChoice(br, 1, 3);
 
         int choiceMax = 1;
         if (settingChoice == 1) {
@@ -161,11 +164,10 @@ public class Game {
         }
 
         if (0 < settingChoice && settingChoice <= 2) {
-            int choice = 0;
-            do {
-                choice = readChoice(br, 1, choiceMax);
-            } while (choice <= 0);
-            newSettings[settingChoice - 1] = choice - 1;
+            int choice = readChoice(br, 1, choiceMax);
+            if (choice > 0) {
+                newSettings[settingChoice - 1] = choice - 1;
+            }
         }
         return newSettings;
     }

@@ -65,6 +65,18 @@ public class Hand {
         this.evaluate();
     }
 
+    public void showHand() {
+        for (Card card : cardList) {
+            card.setVisible(true);
+        }
+    }
+
+    public void hideHand() {
+        for (Card card : cardList) {
+            card.setVisible(false);
+        }
+    }
+
     public int getValue() {
         return this.bestValue;
     }
@@ -110,6 +122,15 @@ public class Hand {
             return 1;
         }
         return -1;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for(Card card : cardList) {
+            sb.append(card.getVisible() ? card.toString() : "x").append(" ");
+        }
+        return sb.toString();
     }
 
 }

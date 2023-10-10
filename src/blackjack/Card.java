@@ -103,6 +103,11 @@ public class Card implements Comparable<Card> {
         return this.cardType.ordinal() - o.cardType.ordinal();
     }
 
+    @Override
+    public String toString() {
+        return this.cardType.toString() + this.cardSuit.toString();
+    }
+
     // region Static Cards
 
     public static Card ACE() {
