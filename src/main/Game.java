@@ -78,15 +78,35 @@ public class Game {
                 }
                 // Simulate a hand
                 case 2 -> {
-                    printUnavailable();
-                    // Todo: add option to simulate random starting or to load from file (including optional seed)
-                    // ensure that the burn card is still unknown and will be removed randomly for every simulation
-                    // Todo: display table and identify the player (should work in both modes)
-                    // Todo: display player initial options (hit, stand, split, surrender)
-                    // Todo: create list for stand, hit1, hit2, hit3 then simulate the given hand for x times at the
-                    //  fixed table state
-                    // Todo: execute simulations in multiple threads then communicate results with message queue
-                    // Todo: display final result
+                    int readFile = readChoice(br, 2);
+                    if (readFile == 1) {
+                        println("How many players are there? (max 8)");
+                        numPlayers = readChoice(br, 8);
+                        println("How many decks are used? (max 8)");
+                        numDecks = readChoice(br, 8);
+                    } else {
+                        printUnavailable();
+                        continue;
+                    }
+                    playerPos = random.nextInt(numPlayers);
+                    table = new Table(numPlayers, numDecks, gameMode, deckType);
+                    println(table.toString(playerPos));
+
+                    println("How many times do you want to simulate your hand? (max 1,000,000)");
+                    int numSimulations = readChoice(br, 1000000);
+                    // Steps:
+                    // Make choice for hand based on custom criteria (use the best criteria for now)
+                    // n times:
+                    //   play table
+                    //   store result for player
+                    //   undo table
+                    // Compute rates to display
+
+                    // Todo: Execute simulations in multiple threads, providing #iterations and table state
+                    // For multiple threads, communicate result with MessageQueue which will communicate with master
+                    // May want to use a thread pool with max of 32 threads?
+                    // Either divide simulations between few threads or have many threads (thread starvation risk)
+                    // Todo: Output probability of winning
                 }
                 // Change settings
                 case 3 -> {
@@ -156,6 +176,12 @@ public class Game {
         if (showSurrender) {
             println(option + ". Surrender (Forfeit hand, but only lose half your bet)");
         }
+    }
+
+    private static void printSimulationMenu() {
+        println("How will you run the simulation:");
+        println("1. Manual (New Table)");
+        println("2. Read File (Custom Table)");
     }
 
     private static void printSettingMenu() {
