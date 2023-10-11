@@ -70,6 +70,17 @@ public class Hand {
         this.evaluate();
     }
 
+    /**
+     * Remove a card from a hand. This should only be used for splitting a hand.
+     *
+     * @return The card removed from the hand.
+     */
+    public Card removeCard(int index) {
+        if (index < 0 || cardList == null || index >= cardList.size())
+            throw new IndexOutOfBoundsException();
+        return cardList.remove(index);
+    }
+
     public void showHand() {
         for (Card card : cardList) {
             card.setVisible(true);

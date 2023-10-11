@@ -25,11 +25,11 @@ public class Game {
         BufferedReader br = new BufferedReader(isr);
 
         int choice;
-        while(true) {
+        while (true) {
             printMainMenu();
             println("Respond with 'exit' to quit.");
             // Choose in Menu
-            choice = readChoice(br, 1, 3);
+            choice = readChoice(br, 3);
             if (choice == -1)
                 break;
 
@@ -37,30 +37,44 @@ public class Game {
                 // Play Blackjack (Single Player)
                 case 1 -> {
                     println("How many players are there? (max 8)");
-                    numPlayers = readChoice(br, 1, 8);
+                    numPlayers = readChoice(br, 8);
 
                     println("How many decks are used? (max 8)");
-                    numDecks = readChoice(br, 1, 8);
+                    numDecks = readChoice(br, 8);
 
                     playerPos = random.nextInt(numPlayers);
 
                     table = new Table(numPlayers, numDecks, gameMode, deckType);
                     // Start main loop of game
-                    while(true) {
+                    while (true) {
                         table.setup();
-                        println(table.toString(playerPos + 1));
-
+                        println(table.toString(playerPos));
+                        // run through players before you
+                        for (int i = 0; i < playerPos; i++) {
+                            Player player = table.getPlayer(i);
+                            for (int h = 0; h < player.getHandQty(); h++) {
+                                int npcChoice = player.choose(h, table.getDealer().getHand(0));
+                                table.play(i, h, npcChoice);
+                            }
+                        }
                         boolean exit = playerAction(br, table, playerPos);
                         if (exit) {
                             break;
+                        }
+                        // run through the remaining players
+                        for (int i = playerPos + 1; i < numPlayers; i++) {
+                            Player player = table.getPlayer(i);
+                            for (int h = 0; h < player.getHandQty(); h++) {
+                                int npcChoice = player.choose(h, table.getDealer().getHand(0));
+                                table.play(i, h, npcChoice);
+                            }
                         }
 
                         table.resolve();
                         println(table.toString(playerPos, true));
                         println("------------------------------");
                     }
-
-                    // Todo: Add in bets. End game when bet is 0 or exit
+                    // Todo: Add bets to hand, and double down as an option
                 }
                 // Simulate a hand
                 case 2 -> {
@@ -97,7 +111,7 @@ public class Game {
         return response.equalsIgnoreCase("exit") || response.equalsIgnoreCase("quit");
     }
 
-    private static int readChoice(BufferedReader br, int choiceMin, int choiceMax) throws IOException {
+    private static int readChoice(BufferedReader br, int choiceMax) throws IOException {
         int choice = 0;
         boolean isValidChoice = false;
         do {
@@ -110,10 +124,10 @@ public class Game {
                 choice = Integer.parseInt(response);
             } catch (NumberFormatException ex) {
                 printInvalid();
-                return 0;
+                continue;
             }
 
-            isValidChoice = choiceMin <= choice && choice <= choiceMax;
+            isValidChoice = 1 <= choice && choice <= choiceMax;
             if (!isValidChoice) {
                 printInvalid();
             }
@@ -193,11 +207,20 @@ public class Game {
             boolean playHand;
             do {
                 printPlayerMenu(currentHand.toString(), canSplit, canSurrender);
-                choice = readChoice(br, 1, pChoiceQty);
+                choice = readChoice(br, pChoiceQty);
+                // Offset other choices by one for when Split is not displayed
+                if (!canSplit && choice >= 3) {
+                    choice++;
+                }
                 if (choice == -1) {
                     return true;
                 }
                 playHand = table.play(playerNum, i, choice);
+                // Add a card to each hand before the player makes another decision
+                if (canSplit && choice == 3) {
+                    table.play(playerNum, i, 1);
+                    table.play(playerNum, i + 1, 1);
+                }
                 canSurrender = false;
                 pChoiceQty = 2;
                 println("Result: " + currentHand + "\n");
@@ -218,7 +241,7 @@ public class Game {
         int[] newSettings = new int[originalSettings.length];
         System.arraycopy(originalSettings, 0, newSettings, 0, newSettings.length);
 
-        int settingChoice = readChoice(br, 1, 3);
+        int settingChoice = readChoice(br, 3);
 
         int choiceMax = 1;
         if (settingChoice == 1) {
@@ -230,7 +253,7 @@ public class Game {
         }
 
         if (0 < settingChoice && settingChoice <= 2) {
-            int choice = readChoice(br, 1, choiceMax);
+            int choice = readChoice(br, choiceMax);
             if (choice > 0) {
                 newSettings[settingChoice - 1] = choice - 1;
             }

@@ -58,11 +58,11 @@ public class Table {
             }
             // split
             case 3 -> {
-                if (!hand.canSplit()) {
-                    return true;
+                if (hand.canSplit()) {
+                    player.splitHand(handNum);
                 }
-                player.splitHand(handNum);
-                return false;
+                // The current hand is updated when it is split, which the player can continue to play.
+                return true;
             }
             // stand and surrender (for now)
             default -> {
@@ -73,7 +73,7 @@ public class Table {
 
     public void resolve() {
         // Dealer stands on 17, this can be updated in the future to have dealer hit on soft 17
-        while(dealer.getHand(0).getValue() < 17) {
+        while (dealer.getHand(0).getValue() < 17) {
             dealer.getHand(0).addCard(deck.draw());
         }
         for (Player player : players) {
@@ -119,8 +119,8 @@ public class Table {
         }
         if (players != null) {
             // The displayed and assigned player numbers start at 1
-            for (int p = 1; p <= players.size(); p++) {
-                sb.append(displayPlayer(p, p == playerNum, showResult)).append("\n");
+            for (int p = 0; p < players.size(); p++) {
+                sb.append(displayPlayer(p + 1, p == playerNum, showResult)).append("\n");
             }
         }
         return sb.toString();

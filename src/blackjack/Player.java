@@ -35,8 +35,16 @@ public class Player {
             return;
         }
         Hand hand = getHand(index);
-        handList.remove(index);
-        handList.addAll(hand.split());
+        Card card = null;
+        try {
+            card = hand.removeCard(1);
+        } catch (IndexOutOfBoundsException ex) {
+            ex.printStackTrace();
+        }
+        if (card != null) {
+            Hand splitHand = new Hand(card);
+            handList.add(splitHand);
+        }
     }
 
     public void showHands() {
@@ -65,7 +73,7 @@ public class Player {
      * 3. Split
      * 4. Surrender
      *
-     * @param handIndex The hand that the choice will be made for. In most cases this value is 0.
+     * @param handIndex  The hand that the choice will be made for. In most cases this value is 0.
      * @param dealerHand The dealer's hand that decisions will be based off of.
      * @return A choice that will be performed
      */
