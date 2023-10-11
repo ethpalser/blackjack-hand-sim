@@ -9,9 +9,11 @@ public class Deck {
     private final DeckType deckType;
     private final int numDecks;
     private List<Card> cardList;
-    private int cardsDealt;
+    private List<Card> cardsDrawnList;
+    private int cardsDrawn;
     private boolean hasSplitCard; // This card is inserted to the deck randomly to reduce card counting
     private int splitCard;
+    private List<Integer> prevSplitCard;
 
     public Deck() {
         this(DeckType.SEGMENTED, 1);
@@ -22,9 +24,11 @@ public class Deck {
         this.numDecks = (int) Math.ceil(cards.length / 52.0);
         this.cardList = new ArrayList<>();
         this.cardList.addAll(Arrays.asList(cards));
-        this.cardsDealt = 52 * this.numDecks - cardList.size();
+        this.cardsDrawnList = new ArrayList<>(this.cardList.size() / 2);
+        this.cardsDrawn = 52 * this.numDecks - cardList.size();
         this.hasSplitCard = false;
         this.splitCard = 52 * this.numDecks;
+        this.prevSplitCard = new ArrayList<>();
     }
 
     public Deck(DeckType deckType, int numDecks) {
@@ -42,6 +46,8 @@ public class Deck {
         this.numDecks = numDecks;
         this.hasSplitCard = hasSplitCard;
         this.cardList = this.setup(numDecks, hasSplitCard);
+        this.cardsDrawnList = new ArrayList<>(this.cardList.size() / 2);
+        this.prevSplitCard = new ArrayList<>();
     }
 
     private List<Card> setup(int numDecks) {
@@ -63,7 +69,7 @@ public class Deck {
         } else {
             this.splitCard = 52 * numDecks;
         }
-        this.cardsDealt = 0;
+        this.cardsDrawn = 0;
         return cards;
     }
 
@@ -77,13 +83,15 @@ public class Deck {
 
     public Card draw() {
         // "reshuffle" the deck by resetting it, either when it is empty or when the split card is reached
-        if (cardList == null || cardList.isEmpty() || cardsDealt >= splitCard) {
+        if (cardList == null || cardList.isEmpty() || cardsDrawn >= splitCard) {
+            this.prevSplitCard.add(splitCard);
             this.cardList = this.setup(this.numDecks);
         }
-        int bounds = this.deckType.equals(DeckType.RANDOM) ? cardList.size() : 52 - Math.floorMod(cardsDealt, 52);
+        int bounds = this.deckType.equals(DeckType.RANDOM) ? cardList.size() : 52 - Math.floorMod(cardsDrawn, 52);
         int index = (int) (Math.random() * bounds);
-        this.cardsDealt++;
         Card card = cardList.remove(index);
+        this.cardsDrawnList.add(card);
+        this.cardsDrawn++;
         card.setVisible(true);
         return card;
     }
@@ -92,5 +100,43 @@ public class Deck {
         Card drawn = this.draw();
         drawn.setVisible(setVisible);
         return drawn;
+    }
+
+    public void undoDraw() {
+        if (this.cardsDrawnList == null || this.cardsDrawnList.isEmpty()) {
+            return;
+        }
+        // Add back the card that the dealer last drew
+        this.cardList.add(this.cardsDrawnList.remove(this.cardsDrawnList.size() - 1));
+        cardsDrawn--;
+
+        // Newly reshuffled deck
+        if (this.cardsDrawnList.size() > cardsDrawn && cardsDrawn == 0) {
+            int prevDeckSize = 52 * numDecks - prevSplitCard.get(prevSplitCard.size() - 1);
+            // If 0 is larger, the drawn deck is smaller than prev deck, otherwise drawn cards has multiple shuffles
+            int stopIndex = Math.max(0, this.cardsDrawnList.size() - prevDeckSize);
+            // Remove the card recently drawn
+            this.cardsDrawnList.remove(this.cardsDrawnList.size() - 1);
+            // reset deck
+            setup(numDecks, hasSplitCard);
+            this.splitCard = prevSplitCard.remove(prevSplitCard.size() - 1);
+            this.cardsDrawn = prevDeckSize - this.splitCard;
+
+            for (int i = this.cardsDrawnList.size() - 1; i >= stopIndex; i--) {
+                cardList.remove(cardsDrawnList.get(i));
+            }
+        }
+    }
+
+    public int[] countCards() {
+        int[] count = new int[13];
+        for (int i = 0; i < this.size(); i++) {
+            count[this.cardList.get(i).getType().ordinal()]++;
+        }
+        return count;
+    }
+
+    public int getSplitCard() {
+        return this.splitCard;
     }
 }

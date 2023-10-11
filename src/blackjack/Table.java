@@ -6,9 +6,9 @@ import java.util.List;
 public class Table {
 
     private final GameMode gameMode;
+    private final Deck deck;
     private final Player dealer;
-    private List<Player> players;
-    private Deck deck;
+    private final List<Player> players;
 
     public Table() {
         this(1, 1, GameMode.ALL_PLAYERS_VISIBLE, DeckType.SEGMENTED);
@@ -79,6 +79,12 @@ public class Table {
         for (Player player : players) {
             player.resolveHands(dealer);
         }
+    }
+
+    // Todo
+    public void undo() {
+        // This is likely a new object with references to the previous table's data
+        // Ie. Update constructor to do a true copy, or make an elegant undo
     }
 
     public Deck getDeck() {
