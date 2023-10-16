@@ -3,24 +3,28 @@ package blackjack;
 public class HandTestCases {
 
     public static Hand hardSeventeen() {
-        return new Hand(Card.SEVEN(), Card.TEN());
+        return new Hand(new Card(CardType.SEVEN), new Card(CardType.TEN));
     }
 
     public static Hand softSeventeen() {
-        return new Hand(Card.ACE(), Card.SIX());
+        return new Hand(new Card(CardType.ACE), new Card(CardType.SIX));
     }
 
     // Blackjack
     public static Hand aceJack() {
-        return new Hand(Card.ACE(), Card.JACK());
+        return new Hand(new Card(CardType.ACE), new Card(CardType.JACK));
     }
 
     public static Hand acePair() {
-        return new Hand(Card.ACE(), Card.ACE());
+        return new Hand(new Card(CardType.ACE), new Card(CardType.ACE));
     }
 
     public static Hand aceFiveSix() {
-        return new Hand(Card.ACE(), Card.FIVE(), Card.SIX());
+        return new Hand(new Card(CardType.ACE), new Card(CardType.FIVE), new Card(CardType.SIX));
+    }
+
+    public static Hand sevenEightNine() {
+        return new Hand(new Card(CardType.SEVEN), new Card(CardType.EIGHT), new Card(CardType.NINE));
     }
 
 }

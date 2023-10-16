@@ -10,10 +10,21 @@ public class Table {
     private final Player dealer;
     private final List<Player> players;
 
+    /**
+     * Initialize a table with the minimum number of requirements to play Blackjack with a dealer.
+     */
     public Table() {
         this(1, 1, GameMode.ALL_PLAYERS_VISIBLE, DeckType.SEGMENTED);
     }
 
+    /**
+     * Initialize a table with a given number of players, decks and game settings.
+     *
+     * @param numPlayers How many players there are.
+     * @param numDecks   How many decks there are.
+     * @param gameMode   If all player cards are visible or not
+     * @param deckType   If the whole deck is drawn from randomly among multiple decks or from one deck
+     */
     public Table(int numPlayers, int numDecks, GameMode gameMode, DeckType deckType) {
         this.gameMode = gameMode;
         this.dealer = new Player();
@@ -25,14 +36,25 @@ public class Table {
         this.deck = new Deck(deckType, numDecks);
     }
 
+    public Player getDealer() {
+        return dealer;
+    }
+
+    public Player getPlayer(int index) {
+        return players.get(index);
+    }
+
+    /**
+     * Updates all players of the table to have cards to play the game of Blackjack.
+     */
     public void setup() {
         boolean isPlayerVisible = GameMode.ALL_PLAYERS_VISIBLE.equals(this.gameMode);
 
         deck.draw(); // The burn card, which is never used in blackjack
         for (Player player : players) {
-            player.dealHand(new Hand(deck.draw(isPlayerVisible)));
+            player.setHand(new Hand(deck.draw(isPlayerVisible)));
         }
-        dealer.dealHand(new Hand(deck.draw(false)));
+        dealer.setHand(new Hand(deck.draw(false)));
 
         for (Player player : players) {
             player.getHand(0).addCard(deck.draw(isPlayerVisible));
@@ -40,6 +62,14 @@ public class Table {
         dealer.getHand(0).addCard(deck.draw(true));
     }
 
+    /**
+     * For a select player that has made a choice, and action at the table will be performed based on that choice.
+     *
+     * @param playerNum The position of the player at the table in the list of players.
+     * @param handNum   The index of the hand of the player.
+     * @param choice    The choice made by the player that will be performed.
+     * @return True if the player chooses to and can continue play more, otherwise false
+     */
     public boolean play(int playerNum, int handNum, int choice) {
         if (playerNum < 0 || playerNum >= players.size()) {
             return false;
@@ -71,13 +101,16 @@ public class Table {
         }
     }
 
+    /**
+     * For every player, compare each player's hands with the dealer.
+     */
     public void resolve() {
         // Dealer stands on 17, this can be updated in the future to have dealer hit on soft 17
         while (dealer.getHand(0).getValue() < 17) {
             dealer.getHand(0).addCard(deck.draw());
         }
         for (Player player : players) {
-            player.resolveHands(dealer);
+            player.resolve(dealer);
         }
     }
 
@@ -85,22 +118,6 @@ public class Table {
     public void undo() {
         // This is likely a new object with references to the previous table's data
         // Ie. Update constructor to do a true copy, or make an elegant undo
-    }
-
-    public Deck getDeck() {
-        return deck;
-    }
-
-    public Player getDealer() {
-        return dealer;
-    }
-
-    public List<Player> getPlayers() {
-        return players;
-    }
-
-    public Player getPlayer(int index) {
-        return players.get(index);
     }
 
     @Override
@@ -132,14 +149,14 @@ public class Table {
         return sb.toString();
     }
 
-    public String displayDealer(boolean showAll) {
+    private String displayDealer(boolean showAll) {
         if (showAll) {
             dealer.showHands();
         }
         return "Dealer: " + dealer.toString() + (dealer.getHand(0).isBust() ? " (BUST!)" : "");
     }
 
-    public String displayPlayer(int playerNum, boolean isPlayer, boolean showAll) {
+    private String displayPlayer(int playerNum, boolean isPlayer, boolean showAll) {
         Player player = getPlayer(playerNum - 1);
         if (isPlayer || showAll) {
             player.showHands();

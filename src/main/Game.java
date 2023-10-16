@@ -225,7 +225,7 @@ public class Game {
         Player player = table.getPlayer(playerNum);
         for (int i = 0; i < player.getHandQty(); i++) {
             Hand currentHand = player.getHand(i);
-            boolean canSplit = player.canSplitHands() && currentHand.canSplit();
+            boolean canSplit = player.canSplit() && currentHand.canSplit();
             boolean canSurrender = i == 0 && player.getHandQty() == 1 && currentHand.size() == 2;
 
             int pChoiceQty = canSplit ? 4 : 3;

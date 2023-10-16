@@ -1,9 +1,13 @@
 package blackjack;
 
+/**
+ * The category of card that visually distinguishes a card from another of the same type in a deck of cards.
+ * This has no purpose in the game of Blackjack, thus only being used to make a card unique.
+ */
 public enum CardSuit {
-    SPADE,
-    HEART,
-    DIAMOND,
+    SPADES,
+    HEARTS,
+    DIAMONDS,
     CLUBS;
 
     @Override
