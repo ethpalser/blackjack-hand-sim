@@ -11,7 +11,7 @@ public class DeckTest {
         Deck test = new Deck(DeckType.SEGMENTED, 1);
 
         int[] cardCount = new int[13];
-        List<Card> cards = test.getCards();
+        List<Card> cards = test.getAll();
         cards.forEach(card -> {
             // Using the ordinal position of the card to count each card
             cardCount[card.getType().ordinal()]++;
@@ -26,7 +26,7 @@ public class DeckTest {
         Deck test = new Deck(DeckType.SEGMENTED, 3);
 
         int[] cardCount = new int[13];
-        List<Card> cards = test.getCards();
+        List<Card> cards = test.getAll();
         cards.forEach(card -> {
             // Using the ordinal position of the card to count each card
             cardCount[card.getType().ordinal()]++;
@@ -81,10 +81,10 @@ public class DeckTest {
             test.draw();
         }
         Card lastDrawn = test.draw();
-        int[] cardCount = test.countCards();
+        int[] cardCount = test.count();
         // When undo draw
         test.undoDraw();
-        int[] newCardCount = test.countCards();
+        int[] newCardCount = test.count();
         for (int i = 0; i < cardCount.length; i++) {
             newCardCount[i] -= cardCount[i];
         }
@@ -106,18 +106,18 @@ public class DeckTest {
     public void undoDraw_fromNewlyShuffledDeck_shouldAddBackLastDrawnBeforeShuffle() {
         // Given an arbitrary amount (13) cards are drawn from the deck, and it is not shuffled
         Deck test = new Deck(DeckType.RANDOM, 2, true);
-        int cardsToDraw = test.size() - test.getSplitCard();
+        int cardsToDraw = test.size() - test.getPosInsert();
         test.draw();
         // Draw until just before the deck will be shuffled
         for (int i = 0; i < cardsToDraw - 1; i++) {
             test.draw();
         }
-        int[] cardCount = test.countCards();
+        int[] cardCount = test.count();
         // Shuffle the deck
         test.draw();
         // When undo draw
         test.undoDraw();
-        int[] newCardCount = test.countCards();
+        int[] newCardCount = test.count();
 
         Assert.assertArrayEquals(cardCount, newCardCount);
     }
@@ -127,7 +127,7 @@ public class DeckTest {
         // Given a new deck
         Deck test = new Deck(DeckType.RANDOM, 4, true);
         // When findCard (King of Spades)
-        int cardIndex = test.findCard(Card.KING());
+        int cardIndex = test.find(Card.KING());
         // Should return 12
         Assert.assertEquals(12, cardIndex);
     }
@@ -136,9 +136,9 @@ public class DeckTest {
     public void findCard_aceOfSpadesFromDeckWithoutAce_shouldNotExist() {
         // Given a new deck
         Deck test = new Deck(DeckType.RANDOM, 1, true);
-        test.removeCard(Card.ACE());
+        test.remove(Card.ACE());
         // When findCard (Ace of Spades)
-        int cardIndex = test.findCard(Card.ACE());
+        int cardIndex = test.find(Card.ACE());
         // Should return -1
         Assert.assertEquals(-1, cardIndex);
     }
@@ -150,10 +150,10 @@ public class DeckTest {
         Deck test = new Deck(DeckType.RANDOM, numDecks, true);
         for (int i = 0; i < numDecks - 1; i++) {
             // Remove all but one ace
-            test.removeCard(Card.ACE());
+            test.remove(Card.ACE());
         }
         // When removeCard (Ace of Spades)
-        int cardIndex = test.findCard(Card.ACE());
+        int cardIndex = test.find(Card.ACE());
         // Should not return -1
         Assert.assertNotEquals(-1, cardIndex);
     }
@@ -164,7 +164,7 @@ public class DeckTest {
         Deck test = new Deck(DeckType.RANDOM, 4, true);
         int originalSize = test.size();
         // When removeCard (King of Spades)
-        Card card = test.removeCard(Card.KING());
+        Card card = test.remove(Card.KING());
         int updatedSize = test.size();
         // Should return 12
         Assert.assertEquals(originalSize - 1, updatedSize);
@@ -175,9 +175,9 @@ public class DeckTest {
     public void removeCard_aceOfSpadesFromDeckWithoutAce_shouldNotExist() {
         // Given a new deck
         Deck test = new Deck(DeckType.RANDOM, 1, true);
-        test.removeCard(Card.ACE());
+        test.remove(Card.ACE());
         // When findCard (Ace of Spades)
-        Card card = test.removeCard(Card.ACE());
+        Card card = test.remove(Card.ACE());
         // Should return -1
         Assert.assertNull(card);
     }
@@ -189,10 +189,10 @@ public class DeckTest {
         Deck test = new Deck(DeckType.RANDOM, numDecks, true);
         for (int i = 0; i < numDecks - 1; i++) {
             // Remove all but one ace
-            test.removeCard(Card.ACE());
+            test.remove(Card.ACE());
         }
         // When removeCard (Ace of Spades)
-        Card card = test.removeCard(Card.ACE());
+        Card card = test.remove(Card.ACE());
         // Should not return -1
         Assert.assertNotNull(card);
     }
@@ -203,7 +203,7 @@ public class DeckTest {
         Deck test = new Deck(DeckType.RANDOM, 1, true);
         int originalSize = test.size();
         // When addCard
-        test.addCard(Card.QUEEN());
+        test.add(Card.QUEEN());
         int updatedSize = test.size();
         // Should be equal
         Assert.assertEquals(originalSize, updatedSize);
@@ -213,12 +213,12 @@ public class DeckTest {
     public void addCard_queenOfSpadesToDeckWithoutQueen_shouldAdd() {
         // Given new deck
         Deck test = new Deck(DeckType.RANDOM, 1, true);
-        test.removeCard(Card.QUEEN());
+        test.remove(Card.QUEEN());
         int originalSize = test.size();
         // When addCard
-        test.addCard(Card.QUEEN());
+        test.add(Card.QUEEN());
         int updatedSize = test.size();
-        int index = test.findCard(Card.QUEEN());
+        int index = test.find(Card.QUEEN());
         // Should be equal
         Assert.assertEquals(originalSize + 1, updatedSize);
         Assert.assertEquals(11, index); // Queens should be the 12th card (11th index) in a complete deck
