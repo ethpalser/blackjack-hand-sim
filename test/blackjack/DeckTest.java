@@ -1,7 +1,5 @@
 package blackjack;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
@@ -96,15 +94,14 @@ public class DeckTest {
 
         String expect = "";
         String actual = "";
-        for(int i = 0; i < 13; i++){
+        for (int i = 0; i < 13; i++) {
             expect += expected[i] + " ";
             actual += newCardCount[i] + " ";
         }
-        System.out.println(expect);
-        System.out.println(actual);
         Assert.assertArrayEquals(expected, newCardCount);
     }
 
+    // Has issue
     @Test
     public void undoDraw_fromNewlyShuffledDeck_shouldAddBackLastDrawnBeforeShuffle() {
         // Given an arbitrary amount (13) cards are drawn from the deck, and it is not shuffled
@@ -123,6 +120,108 @@ public class DeckTest {
         int[] newCardCount = test.countCards();
 
         Assert.assertArrayEquals(cardCount, newCardCount);
+    }
+
+    @Test
+    public void findCard_kingOfSpadesFromNewDeck_shouldExist() {
+        // Given a new deck
+        Deck test = new Deck(DeckType.RANDOM, 4, true);
+        // When findCard (King of Spades)
+        int cardIndex = test.findCard(Card.KING());
+        // Should return 12
+        Assert.assertEquals(12, cardIndex);
+    }
+
+    @Test
+    public void findCard_aceOfSpadesFromDeckWithoutAce_shouldNotExist() {
+        // Given a new deck
+        Deck test = new Deck(DeckType.RANDOM, 1, true);
+        test.removeCard(Card.ACE());
+        // When findCard (Ace of Spades)
+        int cardIndex = test.findCard(Card.ACE());
+        // Should return -1
+        Assert.assertEquals(-1, cardIndex);
+    }
+
+    @Test
+    public void findCard_aceOfSpadesFromDeckWithOne_shouldExist() {
+        int numDecks = 4;
+        // Given a new deck with 4 decks
+        Deck test = new Deck(DeckType.RANDOM, numDecks, true);
+        for (int i = 0; i < numDecks - 1; i++) {
+            // Remove all but one ace
+            test.removeCard(Card.ACE());
+        }
+        // When removeCard (Ace of Spades)
+        int cardIndex = test.findCard(Card.ACE());
+        // Should not return -1
+        Assert.assertNotEquals(-1, cardIndex);
+    }
+
+    @Test
+    public void removeCard_kingOfSpadesFromNewDeck_shouldExist() {
+        // Given a new deck
+        Deck test = new Deck(DeckType.RANDOM, 4, true);
+        int originalSize = test.size();
+        // When removeCard (King of Spades)
+        Card card = test.removeCard(Card.KING());
+        int updatedSize = test.size();
+        // Should return 12
+        Assert.assertEquals(originalSize - 1, updatedSize);
+        Assert.assertEquals(CardType.KING, card.getType());
+    }
+
+    @Test
+    public void removeCard_aceOfSpadesFromDeckWithoutAce_shouldNotExist() {
+        // Given a new deck
+        Deck test = new Deck(DeckType.RANDOM, 1, true);
+        test.removeCard(Card.ACE());
+        // When findCard (Ace of Spades)
+        Card card = test.removeCard(Card.ACE());
+        // Should return -1
+        Assert.assertNull(card);
+    }
+
+    @Test
+    public void removeCard_aceOfSpadesFromDeckWithOne_shouldExist() {
+        int numDecks = 4;
+        // Given a new deck with 4 decks
+        Deck test = new Deck(DeckType.RANDOM, numDecks, true);
+        for (int i = 0; i < numDecks - 1; i++) {
+            // Remove all but one ace
+            test.removeCard(Card.ACE());
+        }
+        // When removeCard (Ace of Spades)
+        Card card = test.removeCard(Card.ACE());
+        // Should not return -1
+        Assert.assertNotNull(card);
+    }
+
+    @Test
+    public void addCard_queenOfSpadesToNewDeck_shouldFail() {
+        // Given new deck
+        Deck test = new Deck(DeckType.RANDOM, 1, true);
+        int originalSize = test.size();
+        // When addCard
+        test.addCard(Card.QUEEN());
+        int updatedSize = test.size();
+        // Should be equal
+        Assert.assertEquals(originalSize, updatedSize);
+    }
+
+    @Test
+    public void addCard_queenOfSpadesToDeckWithoutQueen_shouldAdd() {
+        // Given new deck
+        Deck test = new Deck(DeckType.RANDOM, 1, true);
+        test.removeCard(Card.QUEEN());
+        int originalSize = test.size();
+        // When addCard
+        test.addCard(Card.QUEEN());
+        int updatedSize = test.size();
+        int index = test.findCard(Card.QUEEN());
+        // Should be equal
+        Assert.assertEquals(originalSize + 1, updatedSize);
+        Assert.assertEquals(11, index); // Queens should be the 12th card (11th index) in a complete deck
     }
 
 }

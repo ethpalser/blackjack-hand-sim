@@ -98,9 +98,13 @@ public class Card implements Comparable<Card> {
         this.isVisible = isVisible;
     }
 
+    public int getOrdinalValue() {
+        return 13 * this.cardSuit.ordinal() + this.cardType.ordinal();
+    }
+
     @Override
     public int compareTo(Card o) {
-        return this.cardType.ordinal() - o.cardType.ordinal();
+        return this.getOrdinalValue() - o.getOrdinalValue();
     }
 
     @Override
