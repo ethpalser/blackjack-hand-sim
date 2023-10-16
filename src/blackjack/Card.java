@@ -33,7 +33,17 @@ public class Card implements Comparable<Card> {
      * @param cardType Type of card from Two to Ace. This determines the card's value in Blackjack.
      */
     public Card(CardType cardType) {
-        this(cardType, CardSuit.SPADE, false);
+        this(cardType, CardSuit.SPADES, true);
+    }
+
+    /**
+     * Construct a Card given its type and suit
+     *
+     * @param cardType Type of card from Two to Ace. This determines the card's value in Blackjack.
+     * @param cardSuit Suit of card (Spades, Hearts, Diamonds, Clubs). This affects the card's order in the deck
+     */
+    public Card(CardType cardType, CardSuit cardSuit) {
+        this(cardType, cardSuit, true);
     }
 
     /**
@@ -56,7 +66,7 @@ public class Card implements Comparable<Card> {
      * @param cardId Represents the ordinal value of the card in a deck of playing cards.
      */
     public Card(int cardId) {
-        this(cardId, CardSuit.SPADE, false);
+        this(cardId, CardSuit.SPADES, false);
     }
 
 
@@ -70,7 +80,7 @@ public class Card implements Comparable<Card> {
      */
     public Card(int cardId, CardSuit cardSuit, boolean isVisible) {
         if (cardId < 0 || cardId > 12) {
-            this.cardType = CardType.ACE;
+            throw new IndexOutOfBoundsException();
         } else {
             this.cardType = CardType.values()[cardId];
         }
@@ -78,29 +88,54 @@ public class Card implements Comparable<Card> {
         this.isVisible = isVisible;
     }
 
+    /**
+     * @return CardType of this card.
+     * @see CardType
+     */
     public CardType getType() {
         return this.cardType;
     }
 
+    /**
+     * @return CardSuit of this card.
+     * @see CardSuit
+     */
     public CardSuit getSuit() {
         return this.cardSuit;
     }
 
+    /**
+     * @return The value of this card in the game of Blackjack
+     */
     public int getValue() {
         return this.cardType.getValue();
     }
 
-    public boolean getVisible() {
+    /**
+     * @return The value of this card in a deck of cards
+     */
+    public int getOrdinalValue() {
+        return 13 * this.cardSuit.ordinal() + this.cardType.ordinal();
+    }
+
+    /**
+     * A card's visibility determines if all players can see the card or only the person holding the card can.
+     *
+     * @return True or false
+     */
+    public boolean isVisible() {
         return this.isVisible;
     }
 
+    /**
+     * Reveals or hides the card for all players, except the person holding this card.
+     *
+     * @param isVisible True if the card is revealed to all, false if the card is revealed only to the holder
+     */
     public void setVisible(boolean isVisible) {
         this.isVisible = isVisible;
     }
 
-    public int getOrdinalValue() {
-        return 13 * this.cardSuit.ordinal() + this.cardType.ordinal();
-    }
 
     @Override
     public int compareTo(Card o) {
@@ -112,59 +147,39 @@ public class Card implements Comparable<Card> {
         return this.cardType.toString();
     }
 
-    // region Static Cards
-
-    public static Card ACE() {
-        return new Card(CardType.ACE);
+    /**
+     * A poor card is one that has a low value and is likely to make a hand bust on another hit.
+     *
+     * @return True if Four, Five or Six; else false
+     */
+    public boolean isPoor() {
+        return switch (this.getType()) {
+            case FOUR, FIVE, SIX -> true;
+            default -> false;
+        };
     }
 
-    public static Card TWO() {
-        return new Card(CardType.TWO);
+    /**
+     * A fair card is one that is unlikely to make a hand bust on another hit, but will require a hit.
+     *
+     * @return True if Two or Three; else false
+     */
+    public boolean isFair() {
+        return switch (this.getType()) {
+            case TWO, THREE -> true;
+            default -> false;
+        };
     }
 
-    public static Card THREE() {
-        return new Card(CardType.THREE);
+    /**
+     * A good card is one that is likely to win without a hit.
+     *
+     * @return True if Ace, Seven, Eight, Nine, Ten, Jack, Queen or King; else false
+     */
+    public boolean isGood() {
+        return switch (this.getType()) {
+            case ACE, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING -> true;
+            default -> false;
+        };
     }
-
-    public static Card FOUR() {
-        return new Card(CardType.FOUR);
-    }
-
-    public static Card FIVE() {
-        return new Card(CardType.FIVE);
-    }
-
-    public static Card SIX() {
-        return new Card(CardType.SIX);
-    }
-
-    public static Card SEVEN() {
-        return new Card(CardType.SEVEN);
-    }
-
-    public static Card EIGHT() {
-        return new Card(CardType.EIGHT);
-    }
-
-    public static Card NINE() {
-        return new Card(CardType.NINE);
-    }
-
-    public static Card TEN() {
-        return new Card(CardType.TEN);
-    }
-
-    public static Card JACK() {
-        return new Card(CardType.JACK);
-    }
-
-    public static Card QUEEN() {
-        return new Card(CardType.QUEEN);
-    }
-
-    public static Card KING() {
-        return new Card(CardType.KING);
-    }
-
-    // endregion
 }

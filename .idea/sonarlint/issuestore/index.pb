@@ -1,8 +1,6 @@
 
 F
 blackjack-hand-sim.iml,2\1\21abdb2b3f17a7f318f86619a1a3a9ee3d16b622
-Q
-!test/blackjack/HandTestCases.java,1\d\1d784b18b82ec8b9d6d2080064c5f53405ebe847
 K
 src/blackjack/GameMode.java,d\6\d63cea6497f3adf86e3aff00c47bafd1ca0c03b6
 K

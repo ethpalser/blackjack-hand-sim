@@ -1,6 +1,5 @@
 package blackjack;
 
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -49,17 +48,18 @@ public class HandTest {
     @Test
     public void add_aceToAceSix_equalsEighteen() {
         Hand test = HandTestCases.softSeventeen();
+        Card card = new Card(CardType.ACE, CardSuit.SPADES);
         // evaluate is executed when the new card is added
-        test.addCard(Card.ACE());
+        test.addCard(card);
         int value = test.getValue();
         Assert.assertEquals(18, value);
     }
 
     @Test
     public void add_sevenToAceFiveSix_equalsNineteen() {
-        Hand test = new Hand(Card.ACE(), Card.FIVE(), Card.SIX());
+        Hand test = HandTestCases.aceFiveSix();
         // evaluate is executed when the new card is added
-        test.addCard(Card.SEVEN());
+        test.addCard(new Card(CardType.SEVEN));
         int value = test.getValue();
         Assert.assertEquals(19, value);
     }
@@ -84,7 +84,7 @@ public class HandTest {
 
     @Test
     public void isBust_sevenEightNine_true() {
-        Hand test = new Hand(Card.SEVEN(), Card.EIGHT(), Card.NINE());
+        Hand test = HandTestCases.sevenEightNine();
         Assert.assertTrue(test.isBust());
     }
 
@@ -119,7 +119,7 @@ public class HandTest {
     @Test
     public void isWin_aceFiveSixVsSevenEightNine_true() {
         Hand test = HandTestCases.aceFiveSix();
-        Hand dealer = new Hand(Card.SEVEN(), Card.EIGHT(), Card.NINE());
+        Hand dealer = HandTestCases.sevenEightNine();
         Assert.assertTrue(test.isWin(dealer));
     }
 
@@ -127,24 +127,24 @@ public class HandTest {
     public void compare_aceFiveSixVsSevenTen_isLoss() {
         Hand test = HandTestCases.aceFiveSix();
         Hand dealer = HandTestCases.hardSeventeen();
-        test.setResult(dealer);
-        Assert.assertEquals(HandResult.LOSS, test.getResult());
+        HandResult result = test.result(dealer);
+        Assert.assertEquals(HandResult.LOSS, result);
     }
 
     @Test
     public void compare_aceSixVsSevenTen_isDraw() {
         Hand test = HandTestCases.softSeventeen();
         Hand dealer = HandTestCases.hardSeventeen();
-        test.setResult(dealer);
-        Assert.assertEquals(HandResult.DRAW, test.getResult());
+        HandResult result = test.result(dealer);
+        Assert.assertEquals(HandResult.DRAW, result);
     }
 
     @Test
     public void compare_aceJackVsSevenTen_isWin() {
         Hand test = HandTestCases.aceJack();
         Hand dealer = HandTestCases.hardSeventeen();
-        test.setResult(dealer);
-        Assert.assertEquals(HandResult.WIN, test.getResult());
+        HandResult result = test.result(dealer);
+        Assert.assertEquals(HandResult.WIN, result);
     }
 
 }

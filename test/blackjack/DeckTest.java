@@ -38,18 +38,20 @@ public class DeckTest {
 
     @Test
     public void draw_oneCardInDeck_shouldBeLastCard() {
-        Deck test = new Deck(DeckType.SEGMENTED, Card.ACE());
-        Card card = test.draw();
-        Assert.assertEquals(Card.ACE().getType(), card.getType());
+        Card card = new Card(CardType.ACE, CardSuit.SPADES);
+        Deck test = new Deck(DeckType.SEGMENTED, card);
+        Card drawn = test.draw();
+        Assert.assertEquals(card.getType(), drawn.getType());
         Assert.assertEquals(0, test.size());
     }
 
     @Test
     public void draw_noCardInDeck_shouldBeAnyCard() {
-        Deck test = new Deck(DeckType.SEGMENTED, Card.ACE());
+        Card card = new Card(CardType.ACE, CardSuit.SPADES);
+        Deck test = new Deck(DeckType.SEGMENTED, card);
         test.draw(); // Empty the deck
-        Card card = test.draw();
-        Assert.assertNotNull(card);
+        Card drawn = test.draw();
+        Assert.assertNotNull(drawn);
         Assert.assertEquals(51, test.size());
     }
 
@@ -125,9 +127,10 @@ public class DeckTest {
     @Test
     public void findCard_kingOfSpadesFromNewDeck_shouldExist() {
         // Given a new deck
+        Card card = new Card(CardType.KING, CardSuit.SPADES);
         Deck test = new Deck(DeckType.RANDOM, 4, true);
         // When findCard (King of Spades)
-        int cardIndex = test.find(Card.KING());
+        int cardIndex = test.find(card);
         // Should return 12
         Assert.assertEquals(12, cardIndex);
     }
@@ -135,10 +138,11 @@ public class DeckTest {
     @Test
     public void findCard_aceOfSpadesFromDeckWithoutAce_shouldNotExist() {
         // Given a new deck
+        Card card = new Card(CardType.ACE, CardSuit.SPADES);
         Deck test = new Deck(DeckType.RANDOM, 1, true);
-        test.remove(Card.ACE());
+        test.remove(card);
         // When findCard (Ace of Spades)
-        int cardIndex = test.find(Card.ACE());
+        int cardIndex = test.find(card);
         // Should return -1
         Assert.assertEquals(-1, cardIndex);
     }
@@ -147,13 +151,14 @@ public class DeckTest {
     public void findCard_aceOfSpadesFromDeckWithOne_shouldExist() {
         int numDecks = 4;
         // Given a new deck with 4 decks
+        Card card = new Card(CardType.ACE, CardSuit.SPADES);
         Deck test = new Deck(DeckType.RANDOM, numDecks, true);
         for (int i = 0; i < numDecks - 1; i++) {
             // Remove all but one ace
-            test.remove(Card.ACE());
+            test.remove(card);
         }
         // When removeCard (Ace of Spades)
-        int cardIndex = test.find(Card.ACE());
+        int cardIndex = test.find(card);
         // Should not return -1
         Assert.assertNotEquals(-1, cardIndex);
     }
@@ -161,40 +166,43 @@ public class DeckTest {
     @Test
     public void removeCard_kingOfSpadesFromNewDeck_shouldExist() {
         // Given a new deck
+        Card card = new Card(CardType.KING, CardSuit.SPADES);
         Deck test = new Deck(DeckType.RANDOM, 4, true);
         int originalSize = test.size();
         // When removeCard (King of Spades)
-        Card card = test.remove(Card.KING());
+        Card removed = test.remove(card);
         int updatedSize = test.size();
         // Should return 12
         Assert.assertEquals(originalSize - 1, updatedSize);
-        Assert.assertEquals(CardType.KING, card.getType());
+        Assert.assertEquals(card.getType(), removed.getType());
     }
 
     @Test
     public void removeCard_aceOfSpadesFromDeckWithoutAce_shouldNotExist() {
-        // Given a new deck
+        // Given a new deck without an Ace of Spades
         Deck test = new Deck(DeckType.RANDOM, 1, true);
-        test.remove(Card.ACE());
-        // When findCard (Ace of Spades)
-        Card card = test.remove(Card.ACE());
+        Card card = new Card(CardType.ACE, CardSuit.SPADES);
+        test.remove(card);
+        // When removeCard (Ace of Spades)
+        Card removed = test.remove(card);
         // Should return -1
-        Assert.assertNull(card);
+        Assert.assertNull(removed);
     }
 
     @Test
     public void removeCard_aceOfSpadesFromDeckWithOne_shouldExist() {
+        // Given a new deck with 4 decks without 3 Ace of Spades
         int numDecks = 4;
-        // Given a new deck with 4 decks
         Deck test = new Deck(DeckType.RANDOM, numDecks, true);
+        Card card = new Card(CardType.ACE, CardSuit.SPADES);
         for (int i = 0; i < numDecks - 1; i++) {
             // Remove all but one ace
-            test.remove(Card.ACE());
+            test.remove(card);
         }
         // When removeCard (Ace of Spades)
-        Card card = test.remove(Card.ACE());
+        Card removed = test.remove(card);
         // Should not return -1
-        Assert.assertNotNull(card);
+        Assert.assertNotNull(removed);
     }
 
     @Test
@@ -203,7 +211,8 @@ public class DeckTest {
         Deck test = new Deck(DeckType.RANDOM, 1, true);
         int originalSize = test.size();
         // When addCard
-        test.add(Card.QUEEN());
+        Card card = new Card(CardType.QUEEN, CardSuit.SPADES);
+        test.add(card);
         int updatedSize = test.size();
         // Should be equal
         Assert.assertEquals(originalSize, updatedSize);
@@ -213,12 +222,13 @@ public class DeckTest {
     public void addCard_queenOfSpadesToDeckWithoutQueen_shouldAdd() {
         // Given new deck
         Deck test = new Deck(DeckType.RANDOM, 1, true);
-        test.remove(Card.QUEEN());
+        Card card = new Card(CardType.QUEEN, CardSuit.SPADES);
+        test.remove(card);
         int originalSize = test.size();
         // When addCard
-        test.add(Card.QUEEN());
+        test.add(card);
         int updatedSize = test.size();
-        int index = test.find(Card.QUEEN());
+        int index = test.find(card);
         // Should be equal
         Assert.assertEquals(originalSize + 1, updatedSize);
         Assert.assertEquals(11, index); // Queens should be the 12th card (11th index) in a complete deck
