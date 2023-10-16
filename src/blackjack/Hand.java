@@ -102,7 +102,7 @@ public class Hand {
         int totalValue = 0;
         for (Card card : cardList) {
             // Add aces later, as it can have the value of 1 or 11
-            if (card.compareTo(Card.ACE()) == 0) {
+            if (CardType.ACE.equals(card.getType())) {
                 numAces++;
             } else {
                 totalValue += card.getValue();
@@ -135,7 +135,7 @@ public class Hand {
     }
 
     public boolean canSplit() {
-        return cardList.size() == 2 && cardList.get(0).compareTo(cardList.get(1)) == 0;
+        return cardList.size() == 2 && getCard(0).getType().equals(getCard(1).getType());
     }
 
     public List<Hand> split() {
@@ -165,7 +165,7 @@ public class Hand {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for(Card card : cardList) {
+        for (Card card : cardList) {
             sb.append(card.getVisible() ? card.toString() : "x");
         }
         if (result != null) {
