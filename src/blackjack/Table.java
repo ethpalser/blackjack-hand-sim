@@ -44,6 +44,10 @@ public class Table {
         return players.get(index);
     }
 
+    public List<Player> getPlayers() {
+        return players;
+    }
+
     /**
      * Updates all players of the table to have cards to play the game of Blackjack.
      */
@@ -65,17 +69,12 @@ public class Table {
     /**
      * For a select player that has made a choice, and action at the table will be performed based on that choice.
      *
-     * @param playerNum The position of the player at the table in the list of players.
+     * @param player The position of the player at the table in the list of players.
      * @param handNum   The index of the hand of the player.
      * @param choice    The choice made by the player that will be performed.
      * @return True if the player chooses to and can continue play more, otherwise false
      */
-    public boolean play(int playerNum, int handNum, int choice) {
-        if (playerNum < 0 || playerNum >= players.size()) {
-            return false;
-        }
-        Player player = getPlayer(playerNum);
-
+    public boolean play(Player player, int handNum, int choice) {
         if (handNum < 0 || handNum >= player.getHandQty()) {
             return false;
         }

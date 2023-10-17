@@ -209,6 +209,10 @@ public class Hand {
         return this.result;
     }
 
+    public HandResult getResult() {
+        return this.result;
+    }
+
     /**
      * A soft seventeen is a safe hand for requesting another card. It is large enough that it matches the dealer's
      * minimum stand value, but if the player wants to get a greater value they can safely.
