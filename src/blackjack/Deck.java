@@ -191,7 +191,7 @@ public class Deck {
             this.prevInsertList.add(posInsert);
             this.cardList = this.setup();
         }
-        int bounds = this.deckType.equals(DeckType.RANDOM) ? cardList.size() : 52 - Math.floorMod(numDrawn, 52);
+        int bounds = this.deckType.equals(DeckType.RANDOM) ? cardList.size() - 1 : 52 - Math.floorMod(numDrawn, 52);
         int index = (int) (Math.random() * bounds);
         Card card = cardList.remove(index);
         this.drawnList.add(card);

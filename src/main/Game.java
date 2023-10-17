@@ -80,6 +80,7 @@ public class Game {
                 }
                 // Simulate a hand
                 case 2 -> {
+                    printSimulationMenu();
                     int readFile = readChoice(br, 2);
                     if (readFile == 1) {
                         println("How many players are there? (max 8)");
@@ -92,6 +93,7 @@ public class Game {
                     }
                     playerPos = random.nextInt(numPlayers);
                     table = new Table(numPlayers, numDecks, gameMode, deckType);
+                    table.setup();
                     println(table.toString(playerPos));
 
                     println("How many times do you want to simulate your hand? (max 1,000,000)");
@@ -120,8 +122,7 @@ public class Game {
                                 }
                             }
                         }
-                        // Todo: implement undo
-                        table.undo();
+                        table.reset();
                     }
                     // Todo: Execute simulations in multiple threads, providing #iterations and table state
                     // For multiple threads, communicate result with MessageQueue which will communicate with master
