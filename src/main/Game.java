@@ -3,11 +3,13 @@ package main;
 import blackjack.DeckType;
 import blackjack.GameMode;
 import blackjack.Hand;
+import blackjack.HandResult;
 import blackjack.Player;
 import blackjack.Table;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 import java.util.Random;
 
 public class Game {
@@ -54,7 +56,7 @@ public class Game {
                             Player player = table.getPlayer(i);
                             for (int h = 0; h < player.getHandQty(); h++) {
                                 int npcChoice = player.choose(h, table.getDealer().getHand(0));
-                                table.play(i, h, npcChoice);
+                                table.play(player, h, npcChoice);
                             }
                         }
                         boolean exit = playerAction(br, table, playerPos);
@@ -66,7 +68,7 @@ public class Game {
                             Player player = table.getPlayer(i);
                             for (int h = 0; h < player.getHandQty(); h++) {
                                 int npcChoice = player.choose(h, table.getDealer().getHand(0));
-                                table.play(i, h, npcChoice);
+                                table.play(player, h, npcChoice);
                             }
                         }
 
@@ -94,19 +96,40 @@ public class Game {
 
                     println("How many times do you want to simulate your hand? (max 1,000,000)");
                     int numSimulations = readChoice(br, 1000000);
-                    // Steps:
-                    // Make choice for hand based on custom criteria (use the best criteria for now)
-                    // n times:
-                    //   play table
-                    //   store result for player
-                    //   undo table
-                    // Compute rates to display
 
+                    int[] wins = new int[numPlayers];
+                    int[] draws = new int[numPlayers];
+                    int[] losses = new int[numPlayers];
+                    List<Player> players = table.getPlayers();
+                    for (int n = 0; n < numSimulations; n++) {
+                        for (Player player : players) {
+                            for (int h = 0; h < player.getHandQty(); h++) {
+                                int npcChoice = player.choose(h, table.getDealer().getHand(0));
+                                table.play(player, h, npcChoice);
+                            }
+                        }
+                        table.resolve();
+                        for (int p = 0; p < players.size(); p++) {
+                            Player player = players.get(p);
+                            for (int h = 0; h < player.getHandQty(); h++) {
+                                HandResult result = player.getHand(h).getResult();
+                                switch (result) {
+                                    case WIN -> wins[p]++;
+                                    case DRAW -> draws[p]++;
+                                    case LOSS -> losses[p]++;
+                                }
+                            }
+                        }
+                        // Todo: implement undo
+                        table.undo();
+                    }
                     // Todo: Execute simulations in multiple threads, providing #iterations and table state
                     // For multiple threads, communicate result with MessageQueue which will communicate with master
                     // May want to use a thread pool with max of 32 threads?
                     // Either divide simulations between few threads or have many threads (thread starvation risk)
-                    // Todo: Output probability of winning
+
+                    double rate = wins[playerPos] / (double) (wins[playerPos] + draws[playerPos] + losses[playerPos]);
+                    println("Chance of this hand winning: " + rate * 100 + "%");
                 }
                 // Change settings
                 case 3 -> {
@@ -241,11 +264,11 @@ public class Game {
                 if (choice == -1) {
                     return true;
                 }
-                playHand = table.play(playerNum, i, choice);
+                playHand = table.play(player, i, choice);
                 // Add a card to each hand before the player makes another decision
                 if (canSplit && choice == 3) {
-                    table.play(playerNum, i, 1);
-                    table.play(playerNum, i + 1, 1);
+                    table.play(player, i, 1);
+                    table.play(player, i + 1, 1);
                 }
                 canSurrender = false;
                 pChoiceQty = 2;
