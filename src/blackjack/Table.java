@@ -69,9 +69,9 @@ public class Table {
     /**
      * For a select player that has made a choice, and action at the table will be performed based on that choice.
      *
-     * @param player The position of the player at the table in the list of players.
-     * @param handNum   The index of the hand of the player.
-     * @param choice    The choice made by the player that will be performed.
+     * @param player  The position of the player at the table in the list of players.
+     * @param handNum The index of the hand of the player.
+     * @param choice  The choice made by the player that will be performed.
      * @return True if the player chooses to and can continue play more, otherwise false
      */
     public boolean play(Player player, int handNum, int choice) {
@@ -113,10 +113,32 @@ public class Table {
         }
     }
 
-    // Todo
-    public void undo() {
-        // This is likely a new object with references to the previous table's data
-        // Ie. Update constructor to do a true copy, or make an elegant undo
+    public void reset() {
+        int cardsToUndo = 0;
+        Hand hand;
+        for (Player player : players) {
+            for (int h = 0; h < player.getHandQty(); h++) {
+                for (int c = 0; c < player.getHand(h).size(); c++) {
+                    if (h > 0 || c > 2) {
+                        cardsToUndo++;
+                    }
+                }
+            }
+            // The first hand was split
+            if (player.getHandQty() > 1) {
+                hand = new Hand(player.getHand(0).getCard(0), player.getHand(1).getCard(0));
+            } else {
+                hand = new Hand(player.getHand(0).getCard(0), player.getHand(0).getCard(1));
+            }
+            player.setHand(hand);
+        }
+        for (int c = 2; c < dealer.getHand(0).size(); c++) {
+            dealer.getHand(0).removeCard(c);
+            cardsToUndo++;
+        }
+        for (int i = 0; i < cardsToUndo; i++) {
+            deck.undoDraw();
+        }
     }
 
     @Override
