@@ -6,8 +6,8 @@ public class Simulation implements Runnable {
 
     private Table table;
 
-    private Simulation() {
-        table = new Table();
+    private Simulation(Table table) {
+        this.table = table;
     }
 
     @Override
