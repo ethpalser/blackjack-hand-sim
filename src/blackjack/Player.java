@@ -10,9 +10,16 @@ import java.util.List;
 public class Player {
 
     private List<Hand> handList;
+    private int money;
 
     public Player() {
         this.handList = new ArrayList<>();
+        money = 1000;
+    }
+
+    public Player(int money) {
+        this.handList = new ArrayList<>();
+        this.money = money;
     }
 
     /**
@@ -36,6 +43,23 @@ public class Player {
      */
     public void setHand(Hand hand) {
         handList = new ArrayList<>();
+        this.money = this.money - Math.min(this.money, 10);
+        hand.setBet(10);
+        handList.add(hand);
+    }
+
+    /**
+     * Gives the player a hand. All other hands are discarded, as a player may only have more hands by splitting.
+     * The hand given is given a bet amount, which is the
+     *
+     * @param hand A Hand of cards
+     * @see Hand
+     */
+    public void setHand(Hand hand, int betAmount) {
+        handList = new ArrayList<>();
+        int playedBet = Math.min(this.money, betAmount);
+        adjustMoney(-betAmount);
+        hand.setBet(playedBet);
         handList.add(hand);
     }
 
@@ -62,6 +86,10 @@ public class Player {
         for (Hand hand : handList) {
             hand.hideHand();
         }
+    }
+
+    public void adjustMoney(int amount) {
+        money = money + amount;
     }
 
     /**
@@ -98,6 +126,8 @@ public class Player {
         }
         if (card != null) {
             Hand splitHand = new Hand(card);
+            // Give the new hand the same bet as the original hand
+            splitHand.setBet(hand.getBet());
             handList.add(splitHand);
         }
     }
@@ -128,7 +158,7 @@ public class Player {
      * 3. Split
      * 4. Surrender
      *
-     * @param playerHand  The hand that the choice will be made for.
+     * @param playerHand   The hand that the choice will be made for.
      * @param dealerUpCard The dealer's only visible card used to for making a choice.
      * @return A choice that will be performed
      */
@@ -167,7 +197,14 @@ public class Player {
      */
     public void resolve(Player dealer) {
         for (Hand hand : handList) {
-            hand.result(dealer.getHand(0));
+            HandResult result = hand.result(dealer.getHand(0));
+            switch (result) {
+                case WIN -> adjustMoney(hand.getBet() * 2);
+                case DRAW -> adjustMoney(hand.getBet());
+                default -> {
+                    // Do nothing, the bet was already deducted
+                }
+            }
         }
     }
 

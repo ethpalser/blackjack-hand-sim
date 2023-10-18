@@ -70,8 +70,8 @@ public class Table {
      * as long as the player can play at least one hand. Once the player decides to Stand or Surrender that hand will
      * no longer be played.
      *
-     * @param player Player that possesses the hand that will be autoplay
-     * @param handNum Index of the hand possessed by the player
+     * @param player       Player that possesses the hand that will be autoplay
+     * @param handNum      Index of the hand possessed by the player
      * @param dealerUpCard Dealer's one card revealed to all players, which is used for making a choice
      */
     public void autoplay(Player player, int handNum, Card dealerUpCard) {
@@ -139,6 +139,16 @@ public class Table {
                     return true;
                 }
             }
+            case SURRENDER -> {
+                int originalBet = player.getHand(handNum).getBet();
+                player.getHand(handNum).setBet(originalBet / 2);
+                player.adjustMoney(originalBet / 2);
+            }
+            case DOUBLE_DOWN -> {
+                int originalBet = player.getHand(handNum).getBet();
+                player.getHand(handNum).setBet(originalBet * 2);
+                player.adjustMoney(-originalBet);
+            }
             default -> {
                 return false;
             }
@@ -194,7 +204,7 @@ public class Table {
      * Randomizes cards in a hand by replacing a given number of cards added back to the deck with that many cards
      * drawn from the deck.
      *
-     * @param hand Hand to replace cards
+     * @param hand             Hand to replace cards
      * @param cardsToRandomize Number of cards to replace in the hand
      * @return A new Hand with the given number of cards replaced
      */

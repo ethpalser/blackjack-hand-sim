@@ -9,6 +9,7 @@ public class Hand {
     private final List<Card> cardList;
     private int bestValue;
     private HandResult result;
+    private int bet;
 
     /**
      * Initialize a hand with no cards.
@@ -126,6 +127,25 @@ public class Hand {
      */
     public int getValue() {
         return this.bestValue;
+    }
+
+    /**
+     * Gets the money wagered on the hand.
+     *
+     * @return The amount wagered on the hand.
+     */
+    public int getBet() {
+        return this.bet;
+    }
+
+    /**
+     * Replaces the hand's wagered amount with a new amount. In Blackjack, this bet amount should only be
+     * modified when the player acquires this hand, doubles down (doubles bet) or surrenders (halves bet).
+     *
+     * @param bet New amount wagered on the hand.
+     */
+    public void setBet(int bet) {
+        this.bet = bet;
     }
 
     /**
