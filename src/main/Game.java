@@ -65,7 +65,7 @@ public class Game {
      * @param gameMode GameMode that determines how cards are viewed
      * @param deckType DeckType that determines how the deck is structured
      * @return Table containing players and deck for playing Blackjack
-     * @throws IOException
+     * @throws IOException Runtime exception while reading an input
      */
     private static Table setupGame(BufferedReader br, GameMode gameMode, DeckType deckType) throws IOException {
         printSetupMenu();
@@ -83,7 +83,18 @@ public class Game {
             return null;
         }
     }
-    
+
+    /**
+     * Endlessly plays Blackjack for one player and zero or more non-player entities. The player is the person
+     * interacting with the input console. While playing the game the entities before the player will automatically
+     * play, then the player, then all other entities. The player will make choices to determine how their player-entity
+     * will act.
+     * 
+     * @param br BufferedReader for reading input
+     * @param rng Random for generating a random number
+     * @param table Table containing all players and deck
+     * @throws IOException Runtime exception while reading an input
+     */
     private static void playGame(BufferedReader br, Random rng, Table table) throws IOException {
         if (rng == null || table == null) {
             return;
@@ -118,6 +129,14 @@ public class Game {
         // Todo: Add bets to hand, and double down as an option
     }
 
+    /**
+     * Requests how many times the game will be simulated for the given table, and displays the result.
+     *
+     * @param br BufferedReader for reading input
+     * @param rng Random for generating a random number
+     * @param table Table containing all players and deck
+     * @throws IOException Runtime exception while reading an input
+     */
     private static void simulateGame(BufferedReader br, Random rng, Table table) throws IOException {
         if (rng == null || table == null) {
             return;
