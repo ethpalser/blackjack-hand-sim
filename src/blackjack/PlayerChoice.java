@@ -4,7 +4,8 @@ public enum PlayerChoice {
     HIT("Hit"),
     SPLIT("Split"),
     STAND("Stand"),
-    SURRENDER("Surrender");
+    SURRENDER("Surrender"),
+    DOUBLE_DOWN("Double Down");
 
     private final String display;
 
