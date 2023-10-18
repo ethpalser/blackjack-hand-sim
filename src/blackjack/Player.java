@@ -43,8 +43,9 @@ public class Player {
      */
     public void setHand(Hand hand) {
         handList = new ArrayList<>();
-        this.money = this.money - Math.min(this.money, 10);
-        hand.setBet(10);
+        int playedBet = Math.min(this.money, 10);
+        adjustMoney(-playedBet);
+        hand.setBet(playedBet);
         handList.add(hand);
     }
 
@@ -58,7 +59,7 @@ public class Player {
     public void setHand(Hand hand, int betAmount) {
         handList = new ArrayList<>();
         int playedBet = Math.min(this.money, betAmount);
-        adjustMoney(-betAmount);
+        adjustMoney(-playedBet);
         hand.setBet(playedBet);
         handList.add(hand);
     }
@@ -88,6 +89,21 @@ public class Player {
         }
     }
 
+    /**
+     * Returns the amount of money held by the player.
+     *
+     * @return Returns the player's money held
+     */
+    public int getMoney() {
+        return this.money;
+    }
+
+    /**
+     * Adjusts the player's money by the given amount. Negative amounts are subtracted, which should occur when
+     * the player bets on a hand, surrenders or doubles down.
+     *
+     * @param amount The amount to increase or decrease the player's money
+     */
     public void adjustMoney(int amount) {
         money = money + amount;
     }
