@@ -160,9 +160,6 @@ public class Hand {
             }
         }
         this.bestValue = totalValue;
-        if (isBust()) {
-            this.result = HandResult.LOSS;
-        }
     }
 
     /**
@@ -220,14 +217,8 @@ public class Hand {
      * @return True if the hand's value equals 17 and includes one Ace and equals Seventeen
      */
     public boolean isSoftSeventeen() {
-        boolean hasAce = false;
-        for (int i = 0; i < size(); i++) {
-            if (CardType.ACE.equals(getCard(i).getType())) {
-                hasAce = true;
-                break;
-            }
-        }
-        return getValue() == 17 && hasAce;
+        return size() == 2 && getValue() == 17
+                && (CardType.ACE.equals(getCard(0).getType()) || CardType.ACE.equals(getCard(1).getType()));
     }
 
     @Override
