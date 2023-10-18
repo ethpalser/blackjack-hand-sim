@@ -17,18 +17,13 @@ import java.util.Random;
 public class Game {
 
     public static void main(String[] args) throws IOException {
-        Table table;
-        int numPlayers;
-        int numDecks;
-        int playerPos;
         GameMode gameMode = GameMode.ALL_PLAYERS_VISIBLE;
-        DeckType deckType = DeckType.SEGMENTED;
+        DeckType deckType = DeckType.RANDOM;
 
-        Random random = new Random();
         InputStreamReader isr = new InputStreamReader(System.in);
         BufferedReader br = new BufferedReader(isr);
+        Random rng = new Random();
 
-        Card dealerUpCard;
         int choice;
         while (true) {
             printMainMenu();
@@ -41,99 +36,13 @@ public class Game {
             switch (choice) {
                 // Play Blackjack (Single Player)
                 case 1 -> {
-                    println("How many players are there? (max 8)");
-                    numPlayers = readChoice(br, 8);
-
-                    println("How many decks are used? (max 8)");
-                    numDecks = readChoice(br, 8);
-
-                    playerPos = random.nextInt(numPlayers);
-
-                    table = new Table(numPlayers, numDecks, gameMode, deckType);
-                    // Start main loop of game
-                    while (true) {
-                        table.setup();
-                        dealerUpCard = table.getDealer().getHand(0).getCard(1);
-
-                        println(table.toString(playerPos));
-                        // run through players before you
-                        for (int i = 0; i < playerPos; i++) {
-                            Player player = table.getPlayer(i);
-                            table.autoplay(player, 0, dealerUpCard);
-                        }
-                        boolean exit = playerAction(br, table, playerPos);
-                        if (exit) {
-                            break;
-                        }
-                        // run through the remaining players
-                        for (int i = playerPos + 1; i < numPlayers; i++) {
-                            Player player = table.getPlayer(i);
-                            table.autoplay(player, 0, dealerUpCard);
-                        }
-
-                        table.resolve();
-                        println(table.toString(playerPos, true));
-                        println("------------------------------");
-                    }
-                    // Todo: Add bets to hand, and double down as an option
+                    Table table = setupGame(br, gameMode, deckType);
+                    playGame(br, rng, table);
                 }
                 // Simulate a hand
                 case 2 -> {
-                    printSimulationMenu();
-                    int readFile = readChoice(br, 2);
-                    if (readFile == 1) {
-                        println("How many players are there? (max 8)");
-                        numPlayers = readChoice(br, 8);
-                        println("How many decks are used? (max 8)");
-                        numDecks = readChoice(br, 8);
-                    } else {
-                        printUnavailable();
-                        continue;
-                    }
-                    playerPos = random.nextInt(numPlayers);
-                    table = new Table(numPlayers, numDecks, gameMode, deckType);
-                    table.setup();
-                    println(table.toString(playerPos));
-
-                    Card dealerUpCard = table.getDealer().getHand(0).getCard(1);
-
-                    println("How many times do you want to simulate your hand? (max 1,000,000)");
-                    int numSimulations = readChoice(br, 1000000);
-
-                    int[] wins = new int[numPlayers];
-                    int[] draws = new int[numPlayers];
-                    int[] losses = new int[numPlayers];
-                    List<Player> players = table.getPlayers();
-                    for (int n = 0; n < numSimulations; n++) {
-                        for (Player player : players) {
-                            table.autoplay(player, 0, dealerUpCard);
-                        }
-                        // Randomize Dealer's unrevealed card for more uncertainty in probability
-                        Hand dealerHand = table.getDealer().getHand(0);
-                        table.getDealer().setHand(table.randomizeHand(dealerHand, 1));
-                        table.resolve();
-                        println(table.toString(playerPos, true));
-
-                        for (int p = 0; p < players.size(); p++) {
-                            Player player = players.get(p);
-                            for (int q = 0; q < player.getHandQty(); q++) {
-                                HandResult result = player.getHand(q).getResult();
-                                switch (result) {
-                                    case WIN -> wins[p]++;
-                                    case DRAW -> draws[p]++;
-                                    case LOSS -> losses[p]++;
-                                }
-                            }
-                        }
-                        table.reset();
-                    }
-                    // Todo: Execute simulations in multiple threads, providing #iterations and table state
-                    // For multiple threads, communicate result with MessageQueue which will communicate with master
-                    // May want to use a thread pool with max of 32 threads?
-                    // Either divide simulations between few threads or have many threads (thread starvation risk)
-
-                    double rate = wins[playerPos] / (double) (wins[playerPos] + draws[playerPos] + losses[playerPos]);
-                    println("Chance of this hand winning: " + rate * 100 + "%");
+                    Table table = setupGame(br, gameMode, deckType);
+                    simulateGame(br, rng, table);
                 }
                 // Change settings
                 case 3 -> {
@@ -142,43 +51,137 @@ public class Game {
                     gameMode = GameMode.values()[newSettings[0]];
                     deckType = DeckType.values()[newSettings[1]];
                 }
-                default -> {
-                    printInvalid();
-                }
+                default -> printInvalid();
             }
         }
     }
 
+    /**
+     * This asks how the game will be initialized and will execute that option. For new games, the number of players
+     * and decks are requested, and then a new table is set up with this information. For loading from a file, this
+     * file will be in a specific format to initialize the table.
+     *
+     * @param br BufferedReader for reading input
+     * @param gameMode GameMode that determines how cards are viewed
+     * @param deckType DeckType that determines how the deck is structured
+     * @return Table containing players and deck for playing Blackjack
+     * @throws IOException
+     */
+    private static Table setupGame(BufferedReader br, GameMode gameMode, DeckType deckType) throws IOException {
+        printSetupMenu();
+        int readFile = readChoice(br, 2);
+        // 0 = From File, 1 = Manual (Random Start)
+        Table table;
+        if (readFile == 1) {
+            int numPlayers = askPlayerCount(br);
+            int numDecks = askDeckCount(br);
+            table = new Table(numPlayers, numDecks, gameMode, deckType);
+            table.setup();
+            return table;
+        } else {
+            printUnavailable();
+            return null;
+        }
+    }
+    
+    private static void playGame(BufferedReader br, Random rng, Table table) throws IOException {
+        if (rng == null || table == null) {
+            return;
+        }
+        int numPlayers = table.getPlayers().size();
+        int playerPos = rng.nextInt(numPlayers);
+        // Start main loop of game
+        while (true) {
+            table.setup();
+            println(table.toString(playerPos));
+
+            Card dealerUpCard = table.getDealer().getHand(0).getCard(1);
+            // run through players before you
+            for (int i = 0; i < playerPos; i++) {
+                Player player = table.getPlayer(i);
+                table.autoplay(player, 0, dealerUpCard);
+            }
+            boolean exit = playerAction(br, table, playerPos);
+            if (exit) {
+                break;
+            }
+            // run through the remaining players
+            for (int i = playerPos + 1; i < numPlayers; i++) {
+                Player player = table.getPlayer(i);
+                table.autoplay(player, 0, dealerUpCard);
+            }
+
+            table.resolve();
+            println(table.toString(playerPos, true));
+            println("------------------------------");
+        }
+        // Todo: Add bets to hand, and double down as an option
+    }
+
+    private static void simulateGame(BufferedReader br, Random rng, Table table) throws IOException {
+        if (rng == null || table == null) {
+            return;
+        }
+        int numPlayers = table.getPlayers().size();
+        int playerPos = rng.nextInt(numPlayers);
+        println(table.toString(playerPos));
+
+        println("How many times do you want to simulate your hand? (max 1,000,000)");
+        int numSimulations = readChoice(br, 1000000);
+
+        double[] results = simulateTable(table, numSimulations);
+        println("Chance of this hand winning: " + results[playerPos] * 100 + "%");
+        println("------------------------------");
+    }
+
+    /**
+     * Automatically plays every player at the table by making a generally good choice while playing Blackjack. This
+     * will execute the given number of simulations with the same table state.
+     *
+     * @param table Contains state of all players and deck playing Blackjack
+     * @param numSimulations Number of times the game will be run
+     * @return Array of all percentages of winning their hand
+     */
+    private static double[] simulateTable(Table table, int numSimulations) {
+        List<Player> players = table.getPlayers();
+        int numPlayers = table.getPlayers().size();
+        Card dealerUpCard = table.getDealer().getHand(0).getCard(1);
+
+        int[] wins = new int[numPlayers];
+        int[] draws = new int[numPlayers];
+        int[] losses = new int[numPlayers];
+        for (int n = 0; n < numSimulations; n++) {
+            for (Player player : players) {
+                table.autoplay(player, 0, dealerUpCard);
+            }
+            // Randomize dealer's unrevealed card for more uncertainty in probability
+            Hand dealerHand = table.getDealer().getHand(0);
+            table.getDealer().setHand(table.randomizeHand(dealerHand, 1));
+            table.resolve();
+
+            for (int p = 0; p < players.size(); p++) {
+                Player player = players.get(p);
+                for (int q = 0; q < player.getHandQty(); q++) {
+                    HandResult result = player.getHand(q).getResult();
+                    switch (result) {
+                        case WIN -> wins[p]++;
+                        case DRAW -> draws[p]++;
+                        case LOSS -> losses[p]++;
+                    }
+                }
+            }
+            table.reset();
+        }
+
+        double[] rates = new double[numPlayers];
+        for (int p = 0; p < numPlayers; p++) {
+            rates[p] = wins[p] / (double) (wins[p] + draws[p] + losses[p]);
+        }
+        return rates;
+    }
+
     private static void println(String output) {
         System.out.println(output);
-    }
-
-    private static boolean isExit(String response) {
-        return response.equalsIgnoreCase("exit") || response.equalsIgnoreCase("quit");
-    }
-
-    private static int readChoice(BufferedReader br, int choiceMax) throws IOException {
-        int choice = 0;
-        boolean isValidChoice = false;
-        do {
-            String response = br.readLine();
-            if (isExit(response)) {
-                return -1;
-            }
-
-            try {
-                choice = Integer.parseInt(response);
-            } catch (NumberFormatException ex) {
-                printInvalid();
-                continue;
-            }
-
-            isValidChoice = 1 <= choice && choice <= choiceMax;
-            if (!isValidChoice) {
-                printInvalid();
-            }
-        } while (!isValidChoice);
-        return choice;
     }
 
     // region Dialogue Menus
@@ -204,10 +207,10 @@ public class Game {
         }
     }
 
-    private static void printSimulationMenu() {
-        println("How will you run the simulation:");
-        println("1. Manual (New Table)");
-        println("2. Read File (Custom Table)");
+    private static void printSetupMenu() {
+        println("How will you start the game?");
+        println("1. New Game");
+        println("2. Load File");
     }
 
     private static void printSettingMenu() {
@@ -247,6 +250,55 @@ public class Game {
 
     // region Input Menus
 
+    private static boolean isExit(String response) {
+        return response.equalsIgnoreCase("exit") || response.equalsIgnoreCase("quit");
+    }
+
+    private static int readChoice(BufferedReader br, int choiceMax) throws IOException {
+        int choice = 0;
+        boolean isValidChoice = false;
+        do {
+            String response = br.readLine();
+            if (isExit(response)) {
+                return -1;
+            }
+
+            try {
+                choice = Integer.parseInt(response);
+            } catch (NumberFormatException ex) {
+                printInvalid();
+                continue;
+            }
+
+            isValidChoice = 1 <= choice && choice <= choiceMax;
+            if (!isValidChoice) {
+                printInvalid();
+            }
+        } while (!isValidChoice);
+        return choice;
+    }
+
+    private static int askPlayerCount(BufferedReader br) throws IOException {
+        println("How many players are there? (max 8)");
+        return readChoice(br, 8);
+    }
+
+    private static int askDeckCount(BufferedReader br) throws IOException {
+        println("How many decks are used? (max 8)");
+        return readChoice(br, 8);
+    }
+
+    /**
+     * The player that is playing Blackjack will perform an action at the table. This player is the given player
+     * number. They will be shown the table and their hand and will be asked for their choice. This choice will
+     * then be performed at the table.
+     *
+     * @param br BufferedReader for reading input
+     * @param table Table containing all players and the deck of cards for playing the game
+     * @param playerNum Index of the player at the table
+     * @return True if the player chooses to and can continue making a choice, otherwise false
+     * @throws IOException Runtime exception while reading an input
+     */
     private static boolean playerAction(BufferedReader br, Table table, int playerNum) throws IOException {
         Player player = table.getPlayer(playerNum);
         for (int i = 0; i < player.getHandQty(); i++) {
@@ -288,8 +340,10 @@ public class Game {
      * Accept user input until they back out, and return an array of settings. Each value's index in the array of
      * settings corresponds to the setting menu options and its value is the sub-menu's options.
      *
+     * @param br BufferedReader for reading input
      * @param originalSettings Original setting values
      * @return New setting values
+     * @throws IOException Runtime exception while reading an input
      */
     private static int[] menuSettings(BufferedReader br, int[] originalSettings) throws IOException {
         printSettingMenu();
@@ -315,5 +369,7 @@ public class Game {
         }
         return newSettings;
     }
+
+    // endregion
 
 }
