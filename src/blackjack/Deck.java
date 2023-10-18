@@ -164,6 +164,7 @@ public class Deck {
             // This is where the card is less than all elements to the right and greater than those to the left
             if (cardOrdinalValue != cardList.get(r).getOrdinalValue()) {
                 cardList.add(r + 1, card);
+                removeDrawn(card);
                 numDrawn--;
                 break;
             }
@@ -183,6 +184,15 @@ public class Deck {
             return null;
         }
         return cardList.remove(index);
+    }
+
+    private void removeDrawn(Card card) {
+        for (int i = 0; i < drawnList.size(); i++) {
+            if (card.getOrdinalValue() == drawnList.get(i).getOrdinalValue()) {
+                drawnList.remove(i);
+                break;
+            }
+        }
     }
 
     /**
@@ -281,7 +291,7 @@ public class Deck {
             int numDrawnBeforeShuffle = 52 * numDecks - prevInsertList.get(prevInsertList.size() - 1) - 1;
             // If 0 is larger, the drawn deck is smaller than prev deck, otherwise drawn cards has multiple shuffles
             int stopIndex = Math.max(0, this.drawnList.size() - numDrawnBeforeShuffle);
-            // Remove the card recently drawn
+            // Remove the last-drawn card
             this.drawnList.remove(this.drawnList.size() - 1);
             // reset deck
             this.setup();
@@ -292,7 +302,7 @@ public class Deck {
                 this.remove(drawnList.get(i));
             }
         } else {
-            // Add back the card that the dealer last drew
+            // Add back the last-drawn card
             this.add(this.drawnList.remove(this.drawnList.size() - 1));
         }
     }

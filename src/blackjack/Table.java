@@ -54,7 +54,6 @@ public class Table {
     public void setup() {
         boolean isPlayerVisible = GameMode.ALL_PLAYERS_VISIBLE.equals(this.gameMode);
 
-        deck.draw(); // The burn card, which is never used in blackjack
         for (Player player : players) {
             player.setHand(new Hand(deck.draw(isPlayerVisible)));
         }
@@ -66,6 +65,15 @@ public class Table {
         dealer.getHand(0).addCard(deck.draw(true));
     }
 
+    /**
+     * This method performs a choice for a hand and then plays that hand. This method will recursively execute autoplay
+     * as long as the player can play at least one hand. Once the player decides to Stand or Surrender that hand will
+     * no longer be played.
+     *
+     * @param player Player that possesses the hand that will be autoplay
+     * @param handNum Index of the hand possessed by the player
+     * @param dealerUpCard Dealer's one card revealed to all players, which is used for making a choice
+     */
     public void autoplay(Player player, int handNum, Card dealerUpCard) {
         if (player == null || dealerUpCard == null) {
             return;
@@ -91,9 +99,9 @@ public class Table {
     /**
      * For a select player that has made a choice, and action at the table will be performed based on that choice.
      *
-     * @param playerPos  The position of the player at the table in the list of players.
-     * @param handNum The index of the hand of the player.
-     * @param choice  The choice made by the player that will be performed.
+     * @param playerPos The position of the player at the table in the list of players.
+     * @param handNum   The index of the hand of the player.
+     * @param choice    The choice made by the player that will be performed.
      * @return True if the player chooses to and can continue play more, otherwise false
      */
     public boolean play(int playerPos, int handNum, PlayerChoice choice) {
@@ -105,7 +113,6 @@ public class Table {
         if (handNum < 0 || handNum >= player.getHandQty()) {
             return false;
         }
-        Hand hand = player.getHand(handNum);
         return play(player, handNum, choice);
     }
 
@@ -152,15 +159,18 @@ public class Table {
         }
     }
 
+    /**
+     * Adds cards drawn back into the deck, until the table is back to when it was set up.
+     */
     public void reset() {
         int cardsToUndo = 0;
         Hand hand;
         for (Player player : players) {
             for (int h = 0; h < player.getHandQty(); h++) {
-                for (int c = 0; c < player.getHand(h).size(); c++) {
-                    if (h > 0 || c > 2) {
-                        cardsToUndo++;
-                    }
+                if (h >= 1) {
+                    cardsToUndo += player.getHand(h).size();
+                } else {
+                    cardsToUndo += (player.getHand(h).size() - 2);
                 }
             }
             // The first hand was split
@@ -171,15 +181,23 @@ public class Table {
             }
             player.setHand(hand);
         }
-        for (int c = 2; c < dealer.getHand(0).size(); c++) {
-            dealer.getHand(0).removeCard(c);
-            cardsToUndo++;
-        }
+        // Only one of the dealer's cards are fixed, the rest were drawn after setup including the dealer's hidden card
+        cardsToUndo += (dealer.getHand(0).size() - 1);
+        dealer.setHand(new Hand(dealer.getHand(0).getCard(0), dealer.getHand(0).getCard(1)));
+
         for (int i = 0; i < cardsToUndo; i++) {
             deck.undoDraw();
         }
     }
 
+    /**
+     * Randomizes cards in a hand by replacing a given number of cards added back to the deck with that many cards
+     * drawn from the deck.
+     *
+     * @param hand Hand to replace cards
+     * @param cardsToRandomize Number of cards to replace in the hand
+     * @return A new Hand with the given number of cards replaced
+     */
     public Hand randomizeHand(Hand hand, int cardsToRandomize) {
         int iterations = Math.min(hand.size(), cardsToRandomize);
         for (int i = 0; i < iterations; i++) {
