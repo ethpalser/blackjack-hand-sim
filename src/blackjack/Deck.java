@@ -52,6 +52,27 @@ public class Deck {
         this.prevInsertList = new ArrayList<>();
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < size(); i++) {
+            sb.append(cardList.get(i)).append(" ");
+        }
+        sb.append("\n").append("insert: ").append(posInsert).append(" num drawn: ").append(numDrawn).append(" drawn: ")
+                .append(drawnList.size());
+        return sb.toString();
+    }
+
+    public int getPosInsert() {
+        return this.posInsert;
+    }
+
+    /**
+     * Finds a card that matches the given card by type and suit. This will find the card using binary search.
+     *
+     * @param card Card to find within the deck.
+     * @return Index of the card found, otherwise -1 if it is not found.
+     */
     public int find(Card card) {
         int cardOrdinalValue = card.getOrdinalValue();
         int minBound = 0;
@@ -84,6 +105,12 @@ public class Deck {
         return -1;
     }
 
+    /**
+     * Finds the card using find() and returns the card at that index.
+     *
+     * @param card Card to find in the deck.
+     * @return Card if it exists, otherwise null.
+     */
     public Card get(Card card) {
         int index = this.find(card);
         if (index < 0 || index > cardList.size()) {
@@ -92,10 +119,20 @@ public class Deck {
         return this.cardList.get(index);
     }
 
+    /**
+     * Returns all cards in the deck.
+     *
+     * @return A list of all cards in the deck.
+     */
     public List<Card> getAll() {
         return this.cardList;
     }
 
+    /**
+     * Adds a card to the deck in the first location applicable while maintaining the deck's sorted order.
+     *
+     * @param card Card to add.
+     */
     public void add(Card card) {
         // Do not add any more cards to the deck, as this will exceed the number of decks there should be
         if (cardList.size() >= 52 * numDecks) {
@@ -127,12 +164,19 @@ public class Deck {
             // This is where the card is less than all elements to the right and greater than those to the left
             if (cardOrdinalValue != cardList.get(r).getOrdinalValue()) {
                 cardList.add(r + 1, card);
+                numDrawn--;
                 break;
             }
             minBound = maxBound + 1;
         }
     }
 
+    /**
+     * Finds the card using find() and removes that card from the deck, if it exists.
+     *
+     * @param card Card to find in the deck.
+     * @return Card removed from the deck if it exists, otherwise null.
+     */
     public Card remove(Card card) {
         int index = this.find(card);
         if (index < 0 || index > cardList.size()) {
@@ -141,10 +185,20 @@ public class Deck {
         return cardList.remove(index);
     }
 
+    /**
+     * Number of cards in the deck.
+     *
+     * @return Number of cards in the deck.
+     */
     public int size() {
         return this.cardList.size();
     }
 
+    /**
+     * Count for each type of card in the deck.
+     *
+     * @return Array of counts for each type of card in the deck.
+     */
     public int[] count() {
         int[] count = new int[13];
         for (int i = 0; i < this.size(); i++) {
@@ -153,15 +207,11 @@ public class Deck {
         return count;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < size(); i++) {
-            sb.append(cardList.get(i)).append(" ");
-        }
-        return sb.toString();
-    }
-
+    /**
+     * Initializes the deck with one or more sets of 52 playing cards.
+     *
+     * @return List of cards
+     */
     private List<Card> setup() {
         if (this.numDecks < 1) {
             throw new IllegalArgumentException("Deck must have at least 1 deck of cards.");
@@ -179,20 +229,25 @@ public class Deck {
         if (this.hasInsert) {
             this.posInsert = (int) (cards.size() / 6.0 + Math.random() * cards.size() * 4.0 / 6.0);
         } else {
-            this.posInsert = 52 * numDecks;
+            this.posInsert = 52 * numDecks - 1;
         }
         this.numDrawn = 0;
         return cards;
     }
 
+    /**
+     * Remove a card from the deck. This card is removed randomly instead of having the deck shuffled.
+     *
+     * @return Card removed from the deck.
+     */
     public Card draw() {
         // "reshuffle" the deck by resetting it, either when it is empty or when the split card is reached
         if (cardList == null || cardList.isEmpty() || numDrawn >= posInsert) {
             this.prevInsertList.add(posInsert);
             this.cardList = this.setup();
         }
-        int bounds = this.deckType.equals(DeckType.RANDOM) ? cardList.size() - 1 : 52 - Math.floorMod(numDrawn, 52);
-        int index = (int) (Math.random() * bounds);
+        int bounds = this.deckType.equals(DeckType.RANDOM) ? cardList.size() : 52 - Math.floorMod(numDrawn, 52);
+        int index = (int) Math.floor((Math.random() * bounds));
         Card card = cardList.remove(index);
         this.drawnList.add(card);
         this.numDrawn++;
@@ -200,42 +255,54 @@ public class Deck {
         return card;
     }
 
+    /**
+     * Remove a card from the deck revealed or hidden.
+     *
+     * @param setVisible Visibility to update the card.
+     * @return Card removed from the deck.
+     */
     public Card draw(boolean setVisible) {
         Card drawn = this.draw();
         drawn.setVisible(setVisible);
         return drawn;
     }
 
+    /**
+     * Adds back the last card that was removed from the deck. If the deck is complete it will be rebuilt without
+     * all cards that should be removed.
+     */
     public void undoDraw() {
         if (this.drawnList == null || this.drawnList.isEmpty()) {
             return;
         }
-        // Add back the card that the dealer last drew
-        this.add(this.drawnList.remove(this.drawnList.size() - 1));
-        numDrawn--;
-
         // Newly reshuffled deck
         if (this.drawnList.size() > numDrawn && numDrawn == 0) {
-            int prevDeckSize = 52 * numDecks - prevInsertList.get(prevInsertList.size() - 1);
+            // Deck size - insert location + 1 (ex. 52 - (10 + 1) = 42 cards drawn)
+            int numDrawnBeforeShuffle = 52 * numDecks - prevInsertList.get(prevInsertList.size() - 1) - 1;
             // If 0 is larger, the drawn deck is smaller than prev deck, otherwise drawn cards has multiple shuffles
-            int stopIndex = Math.max(0, this.drawnList.size() - prevDeckSize);
+            int stopIndex = Math.max(0, this.drawnList.size() - numDrawnBeforeShuffle);
             // Remove the card recently drawn
             this.drawnList.remove(this.drawnList.size() - 1);
             // reset deck
             this.setup();
             this.posInsert = prevInsertList.remove(prevInsertList.size() - 1);
-            this.numDrawn = prevDeckSize - this.posInsert;
+            this.numDrawn = numDrawnBeforeShuffle;
 
             for (int i = this.drawnList.size() - 1; i >= stopIndex; i--) {
-                cardList.remove(drawnList.get(i));
+                this.remove(drawnList.get(i));
             }
+        } else {
+            // Add back the card that the dealer last drew
+            this.add(this.drawnList.remove(this.drawnList.size() - 1));
         }
     }
 
-    public int getPosInsert() {
-        return this.posInsert;
-    }
-
+    /**
+     * Finds the bounds for a subset of the Deck that is 52 or fewer cards.
+     *
+     * @param start Start index of the deck.
+     * @return Index of the last card (right bound) within this deck subset
+     */
     private int findDeckBounds(int start) {
         if (start < 0 || start >= cardList.size()) {
             throw new IndexOutOfBoundsException();

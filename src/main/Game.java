@@ -89,7 +89,7 @@ public class Game {
      * interacting with the input console. While playing the game the entities before the player will automatically
      * play, then the player, then all other entities. The player will make choices to determine how their player-entity
      * will act.
-     * 
+     *
      * @param br BufferedReader for reading input
      * @param rng Random for generating a random number
      * @param table Table containing all players and deck
