@@ -124,9 +124,9 @@ public class Game {
 
             table.resolve();
             println(table.toString(playerPos, true));
+            println("You now have $" + table.getPlayer(playerPos).getMoney() + ".");
             println("------------------------------");
         }
-        // Todo: Add bets to hand, and double down as an option
     }
 
     /**
@@ -213,7 +213,7 @@ public class Game {
         println("3. Update Settings");
     }
 
-    private static void printPlayerMenu(String hand, boolean showSplit, boolean showSurrender) {
+    private static void printPlayerMenu(String hand, boolean showSplit, boolean showSurrender, boolean showDouble) {
         println("What will you do for this hand (" + hand + ")?");
         println("1. Hit (Add another card)");
         println("2. Stand (Pass to next hand/player)");
@@ -224,6 +224,10 @@ public class Game {
         }
         if (showSurrender) {
             println(option + ". Surrender (Forfeit hand, but only lose half your bet)");
+            option++;
+        }
+        if (showDouble) {
+            println(option + ". Double Down (Double bet and Hit once, but you cannot Hit again after)");
         }
     }
 
@@ -325,12 +329,13 @@ public class Game {
             Hand currentHand = player.getHand(i);
             boolean canSplit = player.canSplit() && currentHand.canSplit();
             boolean canSurrender = i == 0 && player.getHandQty() == 1 && currentHand.size() == 2;
+            boolean canDouble = currentHand.size() == 2;
 
-            int pChoiceQty = canSplit ? 4 : 3;
+            int pChoiceQty = canSplit ? 5 : 4;
             int choice;
             boolean canPlay;
             do {
-                printPlayerMenu(currentHand.toString(), canSplit, canSurrender);
+                printPlayerMenu(currentHand.toString(), canSplit, canSurrender, canDouble);
                 choice = readChoice(br, pChoiceQty);
                 // "exit" was inputted
                 if (choice == -1) {
@@ -340,15 +345,21 @@ public class Game {
                 if (!canSplit && choice >= 3) {
                     choice++;
                 }
+                // Offset other choices by one for when Surrender is not displayed
+                if (!canSurrender && choice >= 3) {
+                    choice++;
+                }
                 PlayerChoice playerChoice = switch (choice) {
                     case 1 -> PlayerChoice.HIT;
                     case 3 -> PlayerChoice.SPLIT;
                     case 4 -> PlayerChoice.SURRENDER;
+                    case 5 -> PlayerChoice.DOUBLE_DOWN;
                     default -> PlayerChoice.STAND;
                 };
 
                 canPlay = table.play(playerNum, i, playerChoice);
                 canSurrender = false;
+                canDouble = false;
                 pChoiceQty = 2;
                 println("Result: " + currentHand + "\n");
             } while (canPlay);

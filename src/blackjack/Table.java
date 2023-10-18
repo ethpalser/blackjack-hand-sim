@@ -143,11 +143,15 @@ public class Table {
                 int originalBet = player.getHand(handNum).getBet();
                 player.getHand(handNum).setBet(originalBet / 2);
                 player.adjustMoney(originalBet / 2);
+                return false;
             }
             case DOUBLE_DOWN -> {
                 int originalBet = player.getHand(handNum).getBet();
                 player.getHand(handNum).setBet(originalBet * 2);
                 player.adjustMoney(-originalBet);
+                // Double down also has one card Hit
+                hand.addCard(deck.draw());
+                return false;
             }
             default -> {
                 return false;
