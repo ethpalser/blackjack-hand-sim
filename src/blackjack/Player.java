@@ -138,12 +138,12 @@ public class Player {
             return PlayerChoice.STAND;
         }
 
-        CardType upCardType = dealerUpCard.getType();
+        CardType playerCardType = playerHand.getCard(0).getType();
         if (canSplit()
-                && (CardType.ACE.equals(upCardType) || CardType.EIGHT.equals(upCardType)
-                || CardType.SIX.equals(upCardType) && dealerUpCard.isPoor()
-                || (CardType.TWO.equals(upCardType) || CardType.THREE.equals(upCardType)
-                || CardType.SEVEN.equals(upCardType)) && !dealerUpCard.isGood())) {
+                && (CardType.ACE.equals(playerCardType) || CardType.EIGHT.equals(playerCardType)
+                || CardType.SIX.equals(playerCardType) && dealerUpCard.isPoor()
+                || (CardType.TWO.equals(playerCardType) || CardType.THREE.equals(playerCardType)
+                || CardType.SEVEN.equals(playerCardType)) && !dealerUpCard.isGood())) {
             // Always split Ace and Eight, split Two, Three and Seven if up card is not good and Six if up card is poor
             return PlayerChoice.SPLIT;
         }

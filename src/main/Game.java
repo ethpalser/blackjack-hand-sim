@@ -170,12 +170,13 @@ public class Game {
         int[] draws = new int[numPlayers];
         int[] losses = new int[numPlayers];
         for (int n = 0; n < numSimulations; n++) {
-            for (Player player : players) {
-                table.autoplay(player, 0, dealerUpCard);
-            }
             // Randomize dealer's unrevealed card for more uncertainty in probability
             Hand dealerHand = table.getDealer().getHand(0);
             table.getDealer().setHand(table.randomizeHand(dealerHand, 1));
+
+            for (Player player : players) {
+                table.autoplay(player, 0, dealerUpCard);
+            }
             table.resolve();
 
             for (int p = 0; p < players.size(); p++) {
