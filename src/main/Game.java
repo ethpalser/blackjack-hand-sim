@@ -1,10 +1,12 @@
 package main;
 
+import blackjack.Card;
 import blackjack.DeckType;
 import blackjack.GameMode;
 import blackjack.Hand;
 import blackjack.HandResult;
 import blackjack.Player;
+import blackjack.PlayerChoice;
 import blackjack.Table;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,6 +28,7 @@ public class Game {
         InputStreamReader isr = new InputStreamReader(System.in);
         BufferedReader br = new BufferedReader(isr);
 
+        Card dealerUpCard;
         int choice;
         while (true) {
             printMainMenu();
@@ -50,14 +53,13 @@ public class Game {
                     // Start main loop of game
                     while (true) {
                         table.setup();
+                        dealerUpCard = table.getDealer().getHand(0).getCard(1);
+
                         println(table.toString(playerPos));
                         // run through players before you
                         for (int i = 0; i < playerPos; i++) {
                             Player player = table.getPlayer(i);
-                            for (int h = 0; h < player.getHandQty(); h++) {
-                                int npcChoice = player.choose(h, table.getDealer().getHand(0));
-                                table.play(player, h, npcChoice);
-                            }
+                            table.autoplay(player, 0, dealerUpCard);
                         }
                         boolean exit = playerAction(br, table, playerPos);
                         if (exit) {
@@ -66,10 +68,7 @@ public class Game {
                         // run through the remaining players
                         for (int i = playerPos + 1; i < numPlayers; i++) {
                             Player player = table.getPlayer(i);
-                            for (int h = 0; h < player.getHandQty(); h++) {
-                                int npcChoice = player.choose(h, table.getDealer().getHand(0));
-                                table.play(player, h, npcChoice);
-                            }
+                            table.autoplay(player, 0, dealerUpCard);
                         }
 
                         table.resolve();
@@ -96,6 +95,8 @@ public class Game {
                     table.setup();
                     println(table.toString(playerPos));
 
+                    Card dealerUpCard = table.getDealer().getHand(0).getCard(1);
+
                     println("How many times do you want to simulate your hand? (max 1,000,000)");
                     int numSimulations = readChoice(br, 1000000);
 
@@ -105,16 +106,18 @@ public class Game {
                     List<Player> players = table.getPlayers();
                     for (int n = 0; n < numSimulations; n++) {
                         for (Player player : players) {
-                            for (int h = 0; h < player.getHandQty(); h++) {
-                                int npcChoice = player.choose(h, table.getDealer().getHand(0));
-                                table.play(player, h, npcChoice);
-                            }
+                            table.autoplay(player, 0, dealerUpCard);
                         }
+                        // Randomize Dealer's unrevealed card for more uncertainty in probability
+                        Hand dealerHand = table.getDealer().getHand(0);
+                        table.getDealer().setHand(table.randomizeHand(dealerHand, 1));
                         table.resolve();
+                        println(table.toString(playerPos, true));
+
                         for (int p = 0; p < players.size(); p++) {
                             Player player = players.get(p);
-                            for (int h = 0; h < player.getHandQty(); h++) {
-                                HandResult result = player.getHand(h).getResult();
+                            for (int q = 0; q < player.getHandQty(); q++) {
+                                HandResult result = player.getHand(q).getResult();
                                 switch (result) {
                                     case WIN -> wins[p]++;
                                     case DRAW -> draws[p]++;
@@ -144,7 +147,6 @@ public class Game {
                 }
             }
         }
-
     }
 
     private static void println(String output) {
@@ -254,27 +256,30 @@ public class Game {
 
             int pChoiceQty = canSplit ? 4 : 3;
             int choice;
-            boolean playHand;
+            boolean canPlay;
             do {
                 printPlayerMenu(currentHand.toString(), canSplit, canSurrender);
                 choice = readChoice(br, pChoiceQty);
+                // "exit" was inputted
+                if (choice == -1) {
+                    return true;
+                }
                 // Offset other choices by one for when Split is not displayed
                 if (!canSplit && choice >= 3) {
                     choice++;
                 }
-                if (choice == -1) {
-                    return true;
-                }
-                playHand = table.play(player, i, choice);
-                // Add a card to each hand before the player makes another decision
-                if (canSplit && choice == 3) {
-                    table.play(player, i, 1);
-                    table.play(player, i + 1, 1);
-                }
+                PlayerChoice playerChoice = switch (choice) {
+                    case 1 -> PlayerChoice.HIT;
+                    case 3 -> PlayerChoice.SPLIT;
+                    case 4 -> PlayerChoice.SURRENDER;
+                    default -> PlayerChoice.STAND;
+                };
+
+                canPlay = table.play(playerNum, i, playerChoice);
                 canSurrender = false;
                 pChoiceQty = 2;
                 println("Result: " + currentHand + "\n");
-            } while (playHand);
+            } while (canPlay);
         }
         return false;
     }

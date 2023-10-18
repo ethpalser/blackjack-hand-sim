@@ -114,23 +114,38 @@ public class Player {
      * @param dealerHand The dealer's hand that decisions will be based off of.
      * @return A choice that will be performed
      */
-    public int choose(int handIndex, Hand dealerHand) {
+    public PlayerChoice choose(int handIndex, Hand dealerHand) {
         Hand playerHand = this.getHand(handIndex);
-        CardType type = playerHand.getCard(0).getType();
         Card dealerUpCard = dealerHand.getCard(1);
+        return this.choose(playerHand, dealerUpCard);
+    }
 
+    /**
+     * This will return a choice using known information from the player's hand and the dealer's hand. Choices are
+     * the following:
+     * 1. Hit
+     * 2. Stand
+     * 3. Split
+     * 4. Surrender
+     *
+     * @param playerHand  The hand that the choice will be made for.
+     * @param dealerUpCard The dealer's only visible card used to for making a choice.
+     * @return A choice that will be performed
+     */
+    public PlayerChoice choose(Hand playerHand, Card dealerUpCard) {
         // This is a winning hand, unless the dealer also has blackjack
         if (playerHand.getValue() == 21) {
-            return 2;
+            return PlayerChoice.STAND;
         }
 
+        CardType upCardType = dealerUpCard.getType();
         if (canSplit()
-                && (CardType.ACE.equals(type) || CardType.EIGHT.equals(type)
-                || CardType.SIX.equals(type) && dealerUpCard.isPoor()
-                || (CardType.TWO.equals(type) || CardType.THREE.equals(type) || CardType.SEVEN.equals(type))
-                && !dealerUpCard.isGood())) {
+                && (CardType.ACE.equals(upCardType) || CardType.EIGHT.equals(upCardType)
+                || CardType.SIX.equals(upCardType) && dealerUpCard.isPoor()
+                || (CardType.TWO.equals(upCardType) || CardType.THREE.equals(upCardType)
+                || CardType.SEVEN.equals(upCardType)) && !dealerUpCard.isGood())) {
             // Always split Ace and Eight, split Two, Three and Seven if up card is not good and Six if up card is poor
-            return 3;
+            return PlayerChoice.SPLIT;
         }
 
         // This is a soft hand, so it is always safe to hit, or
@@ -140,9 +155,9 @@ public class Player {
                 || playerHand.getValue() < 17 && dealerUpCard.isGood()
                 || playerHand.getValue() < 13 && dealerUpCard.isFair()
                 || playerHand.getValue() < 12 && dealerUpCard.isPoor()) {
-            return 1;
+            return PlayerChoice.HIT;
         }
-        return 2;
+        return PlayerChoice.STAND;
     }
 
     /**
@@ -160,7 +175,7 @@ public class Player {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (Hand hand : handList) {
-            sb.append(hand.toString()).append("\t");
+            sb.append(hand.toString()).append(" ");
         }
         return sb.toString();
     }

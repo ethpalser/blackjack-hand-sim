@@ -66,38 +66,77 @@ public class Table {
         dealer.getHand(0).addCard(deck.draw(true));
     }
 
+    public void autoplay(Player player, int handNum, Card dealerUpCard) {
+        if (player == null || dealerUpCard == null) {
+            return;
+        }
+
+        Hand hand = player.getHand(handNum);
+        if (hand == null) {
+            hand = player.getHand(0);
+        }
+
+        PlayerChoice choice = player.choose(hand, dealerUpCard);
+        boolean canPlay = this.play(player, handNum, choice);
+        if (canPlay) {
+            if (choice == PlayerChoice.SPLIT) {
+                autoplay(player, handNum, dealerUpCard);
+                autoplay(player, handNum + 1, dealerUpCard);
+            } else {
+                autoplay(player, handNum, dealerUpCard);
+            }
+        }
+    }
+
     /**
      * For a select player that has made a choice, and action at the table will be performed based on that choice.
      *
-     * @param player  The position of the player at the table in the list of players.
+     * @param playerPos  The position of the player at the table in the list of players.
      * @param handNum The index of the hand of the player.
      * @param choice  The choice made by the player that will be performed.
      * @return True if the player chooses to and can continue play more, otherwise false
      */
-    public boolean play(Player player, int handNum, int choice) {
+    public boolean play(int playerPos, int handNum, PlayerChoice choice) {
+        if (playerPos < 0 || playerPos >= players.size()) {
+            return false;
+        }
+        Player player = players.get(playerPos);
+
         if (handNum < 0 || handNum >= player.getHandQty()) {
             return false;
         }
         Hand hand = player.getHand(handNum);
+        return play(player, handNum, choice);
+    }
+
+    /**
+     * For a select player that has made a choice, and action at the table will be performed based on that choice.
+     *
+     * @param player  The Player whose hand will be played
+     * @param handNum The index of the hand of the player.
+     * @param choice  The choice made by the player that will be performed.
+     * @return True if the player chooses to and can continue play more, otherwise false
+     */
+    public boolean play(Player player, int handNum, PlayerChoice choice) {
+        Hand hand = player.getHand(handNum);
         switch (choice) {
-            // hit
-            case 1 -> {
+            case HIT -> {
                 hand.addCard(deck.draw());
                 return !hand.isBust();
             }
-            // split
-            case 3 -> {
+            case SPLIT -> {
                 if (hand.canSplit()) {
                     player.splitHand(handNum);
+                    player.getHand(handNum).addCard(deck.draw());
+                    player.getHand(handNum + 1).addCard(deck.draw());
+                    return true;
                 }
-                // The current hand is updated when it is split, which the player can continue to play.
-                return true;
             }
-            // stand and surrender (for now)
             default -> {
                 return false;
             }
         }
+        return false;
     }
 
     /**
@@ -139,6 +178,22 @@ public class Table {
         for (int i = 0; i < cardsToUndo; i++) {
             deck.undoDraw();
         }
+    }
+
+    public Hand randomizeHand(Hand hand, int cardsToRandomize) {
+        int iterations = Math.min(hand.size(), cardsToRandomize);
+        for (int i = 0; i < iterations; i++) {
+            deck.add(hand.getCard(i));
+        }
+
+        Hand newHand = new Hand();
+        for (int i = 0; i < iterations; i++) {
+            newHand.addCard(deck.draw());
+        }
+        for (int i = iterations; i < hand.size(); i++) {
+            newHand.addCard(hand.getCard(i));
+        }
+        return newHand;
     }
 
     @Override
