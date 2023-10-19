@@ -61,7 +61,7 @@ public class Game {
      * and decks are requested, and then a new table is set up with this information. For loading from a file, this
      * file will be in a specific format to initialize the table.
      *
-     * @param br BufferedReader for reading input
+     * @param br       BufferedReader for reading input
      * @param gameMode GameMode that determines how cards are viewed
      * @param deckType DeckType that determines how the deck is structured
      * @return Table containing players and deck for playing Blackjack
@@ -75,8 +75,8 @@ public class Game {
         if (readFile == 1) {
             int numPlayers = askPlayerCount(br);
             int numDecks = askDeckCount(br);
-            table = new Table(numPlayers, numDecks, gameMode, deckType);
-            table.setup();
+            int betAmount = askBetAmount(br);
+            table = new Table(numPlayers, numDecks, gameMode, deckType, betAmount);
             return table;
         } else {
             printUnavailable();
@@ -90,8 +90,8 @@ public class Game {
      * play, then the player, then all other entities. The player will make choices to determine how their player-entity
      * will act.
      *
-     * @param br BufferedReader for reading input
-     * @param rng Random for generating a random number
+     * @param br    BufferedReader for reading input
+     * @param rng   Random for generating a random number
      * @param table Table containing all players and deck
      * @throws IOException Runtime exception while reading an input
      */
@@ -132,8 +132,8 @@ public class Game {
     /**
      * Requests how many times the game will be simulated for the given table, and displays the result.
      *
-     * @param br BufferedReader for reading input
-     * @param rng Random for generating a random number
+     * @param br    BufferedReader for reading input
+     * @param rng   Random for generating a random number
      * @param table Table containing all players and deck
      * @throws IOException Runtime exception while reading an input
      */
@@ -143,6 +143,7 @@ public class Game {
         }
         int numPlayers = table.getPlayers().size();
         int playerPos = rng.nextInt(numPlayers);
+        table.setup();
         println(table.toString(playerPos));
 
         println("How many times do you want to simulate your hand? (max 1,000,000)");
@@ -157,7 +158,7 @@ public class Game {
      * Automatically plays every player at the table by making a generally good choice while playing Blackjack. This
      * will execute the given number of simulations with the same table state.
      *
-     * @param table Contains state of all players and deck playing Blackjack
+     * @param table          Contains state of all players and deck playing Blackjack
      * @param numSimulations Number of times the game will be run
      * @return Array of all percentages of winning their hand
      */
@@ -279,6 +280,10 @@ public class Game {
     }
 
     private static int readChoice(BufferedReader br, int choiceMax) throws IOException {
+        return readChoice(br, 1, choiceMax);
+    }
+
+    private static int readChoice(BufferedReader br, int choiceMin, int choiceMax) throws IOException {
         int choice = 0;
         boolean isValidChoice = false;
         do {
@@ -294,7 +299,7 @@ public class Game {
                 continue;
             }
 
-            isValidChoice = 1 <= choice && choice <= choiceMax;
+            isValidChoice = choiceMin <= choice && choice <= choiceMax;
             if (!isValidChoice) {
                 printInvalid();
             }
@@ -312,13 +317,18 @@ public class Game {
         return readChoice(br, 8);
     }
 
+    private static int askBetAmount(BufferedReader br) throws IOException {
+        println("How much is the minimum bet? (min 10, max 100");
+        return readChoice(br, 10, 100);
+    }
+
     /**
      * The player that is playing Blackjack will perform an action at the table. This player is the given player
      * number. They will be shown the table and their hand and will be asked for their choice. This choice will
      * then be performed at the table.
      *
-     * @param br BufferedReader for reading input
-     * @param table Table containing all players and the deck of cards for playing the game
+     * @param br        BufferedReader for reading input
+     * @param table     Table containing all players and the deck of cards for playing the game
      * @param playerNum Index of the player at the table
      * @return True if the player chooses to and can continue making a choice, otherwise false
      * @throws IOException Runtime exception while reading an input
@@ -371,7 +381,7 @@ public class Game {
      * Accept user input until they back out, and return an array of settings. Each value's index in the array of
      * settings corresponds to the setting menu options and its value is the sub-menu's options.
      *
-     * @param br BufferedReader for reading input
+     * @param br               BufferedReader for reading input
      * @param originalSettings Original setting values
      * @return New setting values
      * @throws IOException Runtime exception while reading an input

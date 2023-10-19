@@ -9,12 +9,13 @@ public class Table {
     private final Deck deck;
     private final Player dealer;
     private final List<Player> players;
+    private int handBetAmount;
 
     /**
      * Initialize a table with the minimum number of requirements to play Blackjack with a dealer.
      */
     public Table() {
-        this(1, 1, GameMode.ALL_PLAYERS_VISIBLE, DeckType.SEGMENTED);
+        this(1, 1, GameMode.ALL_PLAYERS_VISIBLE, DeckType.SEGMENTED, 10);
     }
 
     /**
@@ -25,7 +26,7 @@ public class Table {
      * @param gameMode   If all player cards are visible or not
      * @param deckType   If the whole deck is drawn from randomly among multiple decks or from one deck
      */
-    public Table(int numPlayers, int numDecks, GameMode gameMode, DeckType deckType) {
+    public Table(int numPlayers, int numDecks, GameMode gameMode, DeckType deckType, int minBetAmount) {
         this.gameMode = gameMode;
         this.dealer = new Player();
         this.players = new ArrayList<>();
@@ -34,6 +35,7 @@ public class Table {
         }
 
         this.deck = new Deck(deckType, numDecks);
+        this.handBetAmount = minBetAmount;
     }
 
     public Player getDealer() {
@@ -55,7 +57,7 @@ public class Table {
         boolean isPlayerVisible = GameMode.ALL_PLAYERS_VISIBLE.equals(this.gameMode);
 
         for (Player player : players) {
-            player.setHand(new Hand(deck.draw(isPlayerVisible)));
+            player.setHand(new Hand(deck.draw(isPlayerVisible)), handBetAmount);
         }
         dealer.setHand(new Hand(deck.draw(false)));
 
