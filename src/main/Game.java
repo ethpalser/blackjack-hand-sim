@@ -9,12 +9,20 @@ import blackjack.Player;
 import blackjack.PlayerChoice;
 import blackjack.Table;
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Stream;
 
 public class Game {
+
+    private static String SAVE_DIR = "./save/";
 
     public static void main(String[] args) throws IOException {
         GameMode gameMode = GameMode.ALL_PLAYERS_VISIBLE;
@@ -77,11 +85,58 @@ public class Game {
             int numDecks = askDeckCount(br);
             int betAmount = askBetAmount(br);
             table = new Table(numPlayers, numDecks, gameMode, deckType, betAmount);
+            table.setup();
             return table;
         } else {
-            printUnavailable();
-            return null;
+            return loadGame(br, gameMode, deckType);
         }
+    }
+
+    private static Table loadGame(BufferedReader inputReader, GameMode gameMode, DeckType deckType) {
+        Table defaultTable = new Table();
+
+        String fileName = "";
+        try (Stream<Path> paths = Files.walk(Paths.get(SAVE_DIR))) {
+            paths.filter(Files::isRegularFile)
+                    .forEach(System.out::println);
+            fileName = inputReader.readLine();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            defaultTable.setup();
+            return defaultTable;
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(SAVE_DIR + fileName))) {
+            println("File loaded!");
+            int numPlayers = Integer.parseInt(br.readLine());
+            int numDecks = Integer.parseInt(br.readLine());
+            int betAmount = Integer.parseInt(br.readLine());
+
+            Table table = new Table(numPlayers, numDecks, gameMode, deckType, betAmount);
+
+            // Load dealer and players
+            for (int i = -1; i < numPlayers; i++) {
+                List<Card> cards = new ArrayList<>();
+
+                String handString = br.readLine();
+                String[] cardStrings = handString.split("\s");
+                for (String cardString : cardStrings) {
+                    Card card = Card.parseCard(cardString);
+                    table.getDeck().remove(card);
+                    cards.add(card);
+                }
+                if (i == -1) {
+                    table.getDealer().setHand(new Hand(cards));
+                } else {
+                    table.getPlayers().get(i).setHand(new Hand(cards));
+                }
+            }
+            return table;
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        defaultTable.setup();
+        return defaultTable;
     }
 
     /**
@@ -103,7 +158,6 @@ public class Game {
         int playerPos = rng.nextInt(numPlayers);
         // Start main loop of game
         while (true) {
-            table.setup();
             println(table.toString(playerPos));
 
             Card dealerUpCard = table.getDealer().getHand(0).getCard(1);
@@ -126,6 +180,7 @@ public class Game {
             println(table.toString(playerPos, true));
             println("You now have $" + table.getPlayer(playerPos).getMoney() + ".");
             println("------------------------------");
+            table.setup();
         }
     }
 
@@ -143,7 +198,6 @@ public class Game {
         }
         int numPlayers = table.getPlayers().size();
         int playerPos = rng.nextInt(numPlayers);
-        table.setup();
         println(table.toString(playerPos));
 
         println("How many times do you want to simulate your hand? (max 1,000,000)");

@@ -38,6 +38,10 @@ public class Table {
         this.handBetAmount = minBetAmount;
     }
 
+    public Deck getDeck() {
+        return this.deck;
+    }
+
     public Player getDealer() {
         return dealer;
     }
