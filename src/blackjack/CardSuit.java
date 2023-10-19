@@ -19,4 +19,14 @@ public enum CardSuit {
             default -> "s";
         };
     }
+
+    public static CardSuit fromString(String str) {
+        return switch (str) {
+            case "s" -> SPADES;
+            case "h" -> HEARTS;
+            case "d" -> DIAMONDS;
+            case "c" -> CLUBS;
+            default -> null;
+        };
+    }
 }

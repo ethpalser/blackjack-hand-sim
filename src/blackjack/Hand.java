@@ -61,6 +61,12 @@ public class Hand {
         result = null;
     }
 
+    public Hand(List<Card> cards) {
+        cardList = cards;
+        this.evaluate();
+        result = null;
+    }
+
     /**
      * @return The number of cards in the hand
      */
@@ -244,11 +250,14 @@ public class Hand {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (Card card : cardList) {
-            sb.append(card.isVisible() ? card.toString() : "x");
+        for (int i = 0; i < cardList.size(); i++) {
+            sb.append(cardList.get(i).isVisible() ? cardList.get(i).toString() : "x");
+            if (i < cardList.size() - 1) {
+                sb.append(" ");
+            }
         }
         if (result != null) {
-            sb.append(" (").append(result).append(")");
+            sb.append("(").append(result).append(")");
         }
         return sb.toString();
     }

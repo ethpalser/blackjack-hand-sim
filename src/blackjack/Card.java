@@ -182,4 +182,19 @@ public class Card implements Comparable<Card> {
             default -> false;
         };
     }
+
+    public static Card parseCard(String str) {
+        CardType type;
+        CardSuit suit = CardSuit.SPADES;
+        if (str.length() == 1) {
+            type = CardType.fromString(str.substring(0, 1));
+        } else if (str.length() == 2) {
+            type = CardType.fromString(str.substring(0, 1));
+            suit = CardSuit.fromString(str.substring(1, 2));
+        } else {
+            throw new IllegalArgumentException("String format is invalid. String must have only one or two characters");
+        }
+        boolean isVisible = !"x".equals(str.substring(0, 1));
+        return new Card(type, suit, isVisible);
+    }
 }

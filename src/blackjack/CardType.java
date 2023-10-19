@@ -36,4 +36,24 @@ public enum CardType {
     public String toString() {
         return this.str;
     }
+
+    public static CardType fromString(String string) {
+        return switch (string) {
+            case "A" -> ACE;
+            case "2" -> TWO;
+            case "3" -> THREE;
+            case "4" -> FOUR;
+            case "5" -> FIVE;
+            case "6" -> SIX;
+            case "7" -> SEVEN;
+            case "8" -> EIGHT;
+            case "9" -> NINE;
+            case "10" -> TEN;
+            case "J" -> JACK;
+            case "Q" -> QUEEN;
+            case "K" -> KING;
+            case "x" -> CardType.values()[(int) Math.floor(Math.random() * 13)];
+            default -> null;
+        };
+    }
 }
