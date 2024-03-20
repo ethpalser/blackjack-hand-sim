@@ -1,2 +1,2 @@
 # blackjack-hand-sim
- Using Monte Carlo in parallel to determine the probability a hand will win against the dealer
+ Using Monte Carlo randomness to determine the probability a hand will win against the dealer
