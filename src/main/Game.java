@@ -358,7 +358,6 @@ public class Game {
                 printInvalid();
             }
         } while (!isValidChoice);
-        return choice;
     }
 
     private static int askPlayerCount(BufferedReader br) throws IOException {
