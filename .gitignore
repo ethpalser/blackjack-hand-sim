@@ -1,3 +1,10 @@
 .idea
 out
 /save/
+
+*.class
+*.iml
+*.jar
+/gradle/
+/build/
+/.gradle/

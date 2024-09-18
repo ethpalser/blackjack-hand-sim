@@ -1,8 +1,8 @@
 package blackjack;
 
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class DeckTest {
 
@@ -17,8 +17,8 @@ public class DeckTest {
             cardCount[card.getType().ordinal()]++;
         });
 
-        Assert.assertEquals(52, test.size());
-        Assert.assertArrayEquals(new int[]{4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4}, cardCount);
+        assertEquals(52, test.size());
+        assertArrayEquals(new int[]{4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4}, cardCount);
     }
 
     @Test
@@ -32,8 +32,8 @@ public class DeckTest {
             cardCount[card.getType().ordinal()]++;
         });
 
-        Assert.assertEquals(156, test.size());
-        Assert.assertArrayEquals(new int[]{12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12}, cardCount);
+        assertEquals(156, test.size());
+        assertArrayEquals(new int[]{12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12}, cardCount);
     }
 
     @Test
@@ -41,8 +41,8 @@ public class DeckTest {
         Card card = new Card(CardType.ACE, CardSuit.SPADES);
         Deck test = new Deck(DeckType.SEGMENTED, card);
         Card drawn = test.draw();
-        Assert.assertEquals(card.getType(), drawn.getType());
-        Assert.assertEquals(0, test.size());
+        assertEquals(card.getType(), drawn.getType());
+        assertEquals(0, test.size());
     }
 
     @Test
@@ -51,8 +51,8 @@ public class DeckTest {
         Deck test = new Deck(DeckType.SEGMENTED, card);
         test.draw(); // Empty the deck
         Card drawn = test.draw();
-        Assert.assertNotNull(drawn);
-        Assert.assertEquals(51, test.size());
+        assertNotNull(drawn);
+        assertEquals(51, test.size());
     }
 
     @Test
@@ -63,7 +63,7 @@ public class DeckTest {
         for (int i = 0; i < 52; i++) {
             cardCount[test.draw().getType().ordinal()]++;
         }
-        Assert.assertArrayEquals(new int[]{4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4}, cardCount);
+        assertArrayEquals(new int[]{4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4}, cardCount);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class DeckTest {
         int size = test.size();
 
         test.undoDraw();
-        Assert.assertEquals(size, test.size());
+        assertEquals(size, test.size());
     }
 
     @Test
@@ -100,7 +100,7 @@ public class DeckTest {
             expect += expected[i] + " ";
             actual += newCardCount[i] + " ";
         }
-        Assert.assertArrayEquals(expected, newCardCount);
+        assertArrayEquals(expected, newCardCount);
     }
 
     // Has issue
@@ -121,7 +121,7 @@ public class DeckTest {
         test.undoDraw();
         int[] newCardCount = test.count();
 
-        Assert.assertArrayEquals(cardCount, newCardCount);
+        assertArrayEquals(cardCount, newCardCount);
     }
 
     @Test
@@ -132,7 +132,7 @@ public class DeckTest {
         // When findCard (King of Spades)
         int cardIndex = test.find(card);
         // Should return 12
-        Assert.assertEquals(12, cardIndex);
+        assertEquals(12, cardIndex);
     }
 
     @Test
@@ -144,7 +144,7 @@ public class DeckTest {
         // When findCard (Ace of Spades)
         int cardIndex = test.find(card);
         // Should return -1
-        Assert.assertEquals(-1, cardIndex);
+        assertEquals(-1, cardIndex);
     }
 
     @Test
@@ -160,7 +160,7 @@ public class DeckTest {
         // When removeCard (Ace of Spades)
         int cardIndex = test.find(card);
         // Should not return -1
-        Assert.assertNotEquals(-1, cardIndex);
+        assertNotEquals(-1, cardIndex);
     }
 
     @Test
@@ -173,8 +173,8 @@ public class DeckTest {
         Card removed = test.remove(card);
         int updatedSize = test.size();
         // Should return 12
-        Assert.assertEquals(originalSize - 1, updatedSize);
-        Assert.assertEquals(card.getType(), removed.getType());
+        assertEquals(originalSize - 1, updatedSize);
+        assertEquals(card.getType(), removed.getType());
     }
 
     @Test
@@ -186,7 +186,7 @@ public class DeckTest {
         // When removeCard (Ace of Spades)
         Card removed = test.remove(card);
         // Should return -1
-        Assert.assertNull(removed);
+        assertNull(removed);
     }
 
     @Test
@@ -202,7 +202,7 @@ public class DeckTest {
         // When removeCard (Ace of Spades)
         Card removed = test.remove(card);
         // Should not return -1
-        Assert.assertNotNull(removed);
+        assertNotNull(removed);
     }
 
     @Test
@@ -215,7 +215,7 @@ public class DeckTest {
         test.add(card);
         int updatedSize = test.size();
         // Should be equal
-        Assert.assertEquals(originalSize, updatedSize);
+        assertEquals(originalSize, updatedSize);
     }
 
     @Test
@@ -230,8 +230,8 @@ public class DeckTest {
         int updatedSize = test.size();
         int index = test.find(card);
         // Should be equal
-        Assert.assertEquals(originalSize + 1, updatedSize);
-        Assert.assertEquals(11, index); // Queens should be the 12th card (11th index) in a complete deck
+        assertEquals(originalSize + 1, updatedSize);
+        assertEquals(11, index); // Queens should be the 12th card (11th index) in a complete deck
     }
 
 }

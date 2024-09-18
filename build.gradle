@@ -1,0 +1,27 @@
+plugins {
+    id 'idea'
+    id 'java'
+}
+
+group = 'com.ethpalser'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    sourceCompatibility = '17'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+tasks.named('wrapper') {
+    gradleVersion = '8.6'
+}
