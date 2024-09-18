@@ -1,13 +1,13 @@
-package game;
+package com.ethpalser.game;
 
-import blackjack.Card;
-import blackjack.DeckType;
-import blackjack.GameMode;
-import blackjack.Hand;
-import blackjack.HandResult;
-import blackjack.Player;
-import blackjack.PlayerChoice;
-import blackjack.Table;
+import com.ethpalser.blackjack.Card;
+import com.ethpalser.blackjack.DeckType;
+import com.ethpalser.blackjack.GameMode;
+import com.ethpalser.blackjack.Hand;
+import com.ethpalser.blackjack.HandResult;
+import com.ethpalser.blackjack.Player;
+import com.ethpalser.blackjack.PlayerChoice;
+import com.ethpalser.blackjack.Table;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package blackjack;
+package com.ethpalser.blackjack;
 
 public enum HandResult {
     WIN,

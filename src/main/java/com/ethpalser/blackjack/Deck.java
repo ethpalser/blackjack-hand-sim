@@ -1,4 +1,4 @@
-package blackjack;
+package com.ethpalser.blackjack;
 
 import java.util.ArrayList;
 import java.util.Arrays;

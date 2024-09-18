@@ -1,4 +1,4 @@
-package blackjack;
+package com.ethpalser.blackjack;
 
 /**
  * The category of card that visually distinguishes a card from another of the same type in a deck of cards.

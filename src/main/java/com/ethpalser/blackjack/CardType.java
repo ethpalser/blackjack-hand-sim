@@ -1,4 +1,4 @@
-package blackjack;
+package com.ethpalser.blackjack;
 
 /**
  * The representation of a card in a deck of playing cards. Each type has one intrinsic value within the game of

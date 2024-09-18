@@ -1,6 +1,6 @@
-package game;
+package com.ethpalser.game;
 
-import blackjack.Table;
+import com.ethpalser.blackjack.Table;
 
 public class Simulation implements Runnable {
 

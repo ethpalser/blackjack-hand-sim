@@ -1,4 +1,4 @@
-package blackjack;
+package com.ethpalser.blackjack;
 
 public enum GameMode {
     ALL_PLAYERS_VISIBLE("All player hands are visible"),

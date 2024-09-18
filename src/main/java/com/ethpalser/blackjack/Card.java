@@ -1,4 +1,4 @@
-package blackjack;
+package com.ethpalser.blackjack;
 
 /**
  * The representation of a playing card within the game of Blackjack.

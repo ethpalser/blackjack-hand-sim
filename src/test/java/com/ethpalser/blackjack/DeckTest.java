@@ -1,13 +1,13 @@
-package blackjack;
+package com.ethpalser.blackjack;
 
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
-public class DeckTest {
+class DeckTest {
 
     @Test
-    public void setup_oneDeck_shouldHaveFourOfEach() {
+    void setup_oneDeck_shouldHaveFourOfEach() {
         Deck test = new Deck(DeckType.SEGMENTED, 1);
 
         int[] cardCount = new int[13];
@@ -22,7 +22,7 @@ public class DeckTest {
     }
 
     @Test
-    public void setup_threeDecks_shouldHaveTwelveOfEach() {
+    void setup_threeDecks_shouldHaveTwelveOfEach() {
         Deck test = new Deck(DeckType.SEGMENTED, 3);
 
         int[] cardCount = new int[13];
@@ -37,7 +37,7 @@ public class DeckTest {
     }
 
     @Test
-    public void draw_oneCardInDeck_shouldBeLastCard() {
+    void draw_oneCardInDeck_shouldBeLastCard() {
         Card card = new Card(CardType.ACE, CardSuit.SPADES);
         Deck test = new Deck(DeckType.SEGMENTED, card);
         Card drawn = test.draw();
@@ -46,7 +46,7 @@ public class DeckTest {
     }
 
     @Test
-    public void draw_noCardInDeck_shouldBeAnyCard() {
+    void draw_noCardInDeck_shouldBeAnyCard() {
         Card card = new Card(CardType.ACE, CardSuit.SPADES);
         Deck test = new Deck(DeckType.SEGMENTED, card);
         test.draw(); // Empty the deck
@@ -56,7 +56,7 @@ public class DeckTest {
     }
 
     @Test
-    public void draw_52FromSegmentedDeck_shouldHaveFourOfEach() {
+    void draw_52FromSegmentedDeck_shouldHaveFourOfEach() {
         Deck test = new Deck(DeckType.SEGMENTED, 4);
 
         int[] cardCount = new int[13];
@@ -67,7 +67,7 @@ public class DeckTest {
     }
 
     @Test
-    public void undoDraw_fromNewDeck_shouldDoNothing() {
+    void undoDraw_fromNewDeck_shouldDoNothing() {
         Deck test = new Deck(DeckType.RANDOM, 2, true);
         int size = test.size();
 
@@ -76,7 +76,7 @@ public class DeckTest {
     }
 
     @Test
-    public void undoDraw_fromPlayedDeck_shouldAddBackLastDrawn() {
+    void undoDraw_fromPlayedDeck_shouldAddBackLastDrawn() {
         // Given an arbitrary amount (13) cards are drawn from the deck, and it is not shuffled
         Deck test = new Deck(DeckType.RANDOM, 2, false);
         for (int i = 0; i < 12; i++) {
@@ -105,7 +105,7 @@ public class DeckTest {
 
     // Has issue
     @Test
-    public void undoDraw_fromNewlyShuffledDeck_shouldAddBackLastDrawnBeforeShuffle() {
+    void undoDraw_fromNewlyShuffledDeck_shouldAddBackLastDrawnBeforeShuffle() {
         // Given an arbitrary amount (13) cards are drawn from the deck, and it is not shuffled
         Deck test = new Deck(DeckType.RANDOM, 2, true);
         int cardsToDraw = test.size() - test.getPosInsert();
@@ -125,7 +125,7 @@ public class DeckTest {
     }
 
     @Test
-    public void findCard_kingOfSpadesFromNewDeck_shouldExist() {
+    void findCard_kingOfSpadesFromNewDeck_shouldExist() {
         // Given a new deck
         Card card = new Card(CardType.KING, CardSuit.SPADES);
         Deck test = new Deck(DeckType.RANDOM, 4, true);
@@ -136,7 +136,7 @@ public class DeckTest {
     }
 
     @Test
-    public void findCard_aceOfSpadesFromDeckWithoutAce_shouldNotExist() {
+    void findCard_aceOfSpadesFromDeckWithoutAce_shouldNotExist() {
         // Given a new deck
         Card card = new Card(CardType.ACE, CardSuit.SPADES);
         Deck test = new Deck(DeckType.RANDOM, 1, true);
@@ -148,7 +148,7 @@ public class DeckTest {
     }
 
     @Test
-    public void findCard_aceOfSpadesFromDeckWithOne_shouldExist() {
+    void findCard_aceOfSpadesFromDeckWithOne_shouldExist() {
         int numDecks = 4;
         // Given a new deck with 4 decks
         Card card = new Card(CardType.ACE, CardSuit.SPADES);
@@ -164,7 +164,7 @@ public class DeckTest {
     }
 
     @Test
-    public void removeCard_kingOfSpadesFromNewDeck_shouldExist() {
+    void removeCard_kingOfSpadesFromNewDeck_shouldExist() {
         // Given a new deck
         Card card = new Card(CardType.KING, CardSuit.SPADES);
         Deck test = new Deck(DeckType.RANDOM, 4, true);
@@ -178,7 +178,7 @@ public class DeckTest {
     }
 
     @Test
-    public void removeCard_aceOfSpadesFromDeckWithoutAce_shouldNotExist() {
+    void removeCard_aceOfSpadesFromDeckWithoutAce_shouldNotExist() {
         // Given a new deck without an Ace of Spades
         Deck test = new Deck(DeckType.RANDOM, 1, true);
         Card card = new Card(CardType.ACE, CardSuit.SPADES);
@@ -190,7 +190,7 @@ public class DeckTest {
     }
 
     @Test
-    public void removeCard_aceOfSpadesFromDeckWithOne_shouldExist() {
+    void removeCard_aceOfSpadesFromDeckWithOne_shouldExist() {
         // Given a new deck with 4 decks without 3 Ace of Spades
         int numDecks = 4;
         Deck test = new Deck(DeckType.RANDOM, numDecks, true);
@@ -206,7 +206,7 @@ public class DeckTest {
     }
 
     @Test
-    public void addCard_queenOfSpadesToNewDeck_shouldFail() {
+    void addCard_queenOfSpadesToNewDeck_shouldFail() {
         // Given new deck
         Deck test = new Deck(DeckType.RANDOM, 1, true);
         int originalSize = test.size();
@@ -219,7 +219,7 @@ public class DeckTest {
     }
 
     @Test
-    public void addCard_queenOfSpadesToDeckWithoutQueen_shouldAdd() {
+    void addCard_queenOfSpadesToDeckWithoutQueen_shouldAdd() {
         // Given new deck
         Deck test = new Deck(DeckType.RANDOM, 1, true);
         Card card = new Card(CardType.QUEEN, CardSuit.SPADES);
